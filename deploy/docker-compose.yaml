@@ -1,0 +1,26 @@
+version: '3'
+services:
+  #Nginx Service
+  nginx:
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    container_name: web_monitor_nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      #- "443:443"
+    volumes:
+      - ./application/build:/var/www/html/public
+      - ./services/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./services/nginx/nginx.conf:/etc/nginx/nginx.conf
+      #- /etc/letsencrypt/live/enez.ziot.vn/fullchain.pem:/etc/nginx/ssl/cert.pem
+      #- /etc/letsencrypt/live/enez.ziot.vn/privkey.pem:/etc/nginx/ssl/private.pem
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge

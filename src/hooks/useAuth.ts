@@ -1,4 +1,4 @@
-import { getToken, getUserName, getUserId, addToken, enCryptName, checkAuth } from "../helper";
+import { getToken, getUserName, getUserId, addToken, checkAuth, clearToken } from "../helper";
 
 type token = {
     userName: string;
@@ -13,6 +13,7 @@ const useAuth = () => {
         token: getToken(),
         getUserId: getUserId(),
         addToken: (info: token) => addToken(info),
+        clearToken: () => clearToken(),
         isAuthenticated: checkAuth(),
     }
 }

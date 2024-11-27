@@ -61,7 +61,7 @@ const SignIn = () => {
 
     useEffect(() => {
         if (isSuccess) {
-            navigate('/admin/default');
+            navigate('/admin/chat');
         }
     }, [isSuccess, navigate]);
 

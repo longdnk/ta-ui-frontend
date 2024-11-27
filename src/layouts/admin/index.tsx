@@ -118,7 +118,7 @@ const Dashboard = (props: { [x: string]: any }) => {
                                 {getRoutes(routes)}
                                 <Route
                                     path="/"
-                                    element={<Navigate to="/admin/default" replace/>}
+                                    element={<Navigate to="/admin/chat" replace/>}
                                 />
                             </Routes>
                         </Box>

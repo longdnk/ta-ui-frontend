@@ -4,7 +4,7 @@ import AuthLayout from './layouts/auth';
 import AdminLayout from './layouts/admin';
 import { ChakraProvider } from '@chakra-ui/react';
 import initialTheme from './theme/theme'; //  { themeGreen }
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import PrivateRoute from "./routes/PrivateRoute";
 import useAuth from "./hooks/useAuth";
 // Chakra imports
@@ -13,11 +13,6 @@ const Main = () => {
     // eslint-disable-next-line
     const [currentTheme, setCurrentTheme] = useState(initialTheme)
     const { isAuthenticated } = useAuth()
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        isAuthenticated ? navigate('/admin/default') : navigate('/auth/sign-in');
-    }, [isAuthenticated, navigate]);
 
     return (
         <ChakraProvider theme={currentTheme}>
