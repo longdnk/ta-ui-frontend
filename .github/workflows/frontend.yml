@@ -50,5 +50,5 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}  # Token mặc định của GitHub Actions
         run: |
-          git remote set-url origin https://git:${{secrets.GIT_TOKEN}}@github.com/${{secrets.GIT_REPOSITORY}}.git
+          git remote set-url origin https://git:${{secrets.GIT_TOKEN}}@github.com/${{github.repository}}.git
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
