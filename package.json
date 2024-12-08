@@ -1,5 +1,5 @@
 {
-  "homepage": "https://longdnk.github.io/ta-ui-frontend/",
+  "homepage": "https://longdnk.github.io/ta-ui-frontend",
   "name": "ta-ui-frontend",
   "version": "0.1.0",
   "private": true,
@@ -27,7 +27,6 @@
     "axios": "^0.25.0",
     "framer-motion": "^11.3.7",
     "gh-pages": "^6.2.0",
-    "node-sass": "^7.0.3",
     "npm-force-resolutions": "^0.0.10",
     "react": "^18.3.1",
     "react-apexcharts": "1.4.1",

@@ -7,54 +7,35 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.0.0]
-
-    env:
-      NODE_ENV: production
-      GENERATE_SOURCEMAP: false
-      REACT_APP_VERSION: 1
-      DISABLE_ESLINT_PLUGIN: true
-      GIT_REPOSITORY: ${{ vars.GIT_REPOSITORY }}
-
     steps:
-      # 1. Checkout code từ repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Cài đặt Node.js và cache npm
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           cache: 'npm'
 
-      # 3. Cài đặt dependencies mới nhất
       - name: Install Dependencies
-        run: |
-          npm i
-          npm rebuild node-sass
+        run: npm install  # Thay thế npm i để đảm bảo dependency chính xác
 
-      # 4. Build project
       - name: Build Project
-        run: npm run build --if-present
-
-      # 5. Chạy test (chỉ chạy lệnh echo để kiểm tra)
-      - name: Run Tests (Echo)
-        run: echo "Running Tests... ✅"
-
-      # 6. Triển khai lên GitHub Pages
-      - name: Deploy to GitHub Pages
+        run: npm run build
         env:
-          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-          GIT_REPOSITORY: ${{ vars.GIT_REPOSITORY }}
+          NODE_ENV: production
+          GENERATE_SOURCEMAP: false
+          REACT_APP_VERSION: 1
+          DISABLE_ESLINT_PLUGIN: true
 
-        run: |
-          git remote set-url origin https://git:${GIT_TOKEN}@github.com/longdnk/ta-ui-frontend.git
-          npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
-          env:
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GIT_TOKEN }}
+          publish_dir: ./build  # Đảm bảo đúng thư mục build
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: ${{ github.event.head_commit.message }

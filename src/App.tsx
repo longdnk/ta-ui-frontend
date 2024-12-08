@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import './assets/css/App.scss';
+import './assets/css/App.css';
 import AuthLayout from './layouts/auth';
 import AdminLayout from './layouts/admin';
 import { ChakraProvider } from '@chakra-ui/react';
