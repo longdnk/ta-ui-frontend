@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install  # Thay thế npm i để đảm bảo dependency chính xác
+        run: npm install
 
       - name: Build Project
         run: npm run build
@@ -35,7 +35,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GIT_TOKEN }}
-          publish_dir: ./build  # Đảm bảo đúng thư mục build
+          publish_dir: ./build
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
-          commit_message: ${{ github.event.head_commit.message }
+          commit_message: ${{ github.event.head_commit.message }}
