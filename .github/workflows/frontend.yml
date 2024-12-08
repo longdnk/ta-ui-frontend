@@ -33,8 +33,8 @@ jobs:
           cache: 'npm'
 
       # Cài đặt phụ thuộc
-      - name: Install Dependencies
-        run: npm ci --only=production
+      - name: Install Latest Dependencies
+        run: npm i -f
 
       # Build dự án
       - name: Build Project
