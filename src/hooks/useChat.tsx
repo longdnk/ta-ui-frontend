@@ -90,7 +90,7 @@ export const useChat = () => {
         result.current = '';
     };
 
-    const sendMessage = async () => {
+    const sendMessage = () => {
         const item: ChatItem = {
             role: 'system',
             content: `CORE PERSONA:
@@ -126,7 +126,7 @@ export const useChat = () => {
             max_token: 2048,
             stream_mode: 'token'
         };
-        await sleep(500);
+        sleep(100).then(() => console.log("Loading..."))
         payload.conservation.pop();
         payload.conservation.push({ role: 'assistant', content: 'Thinking...' })
         sendJsonMessage(payload);
