@@ -34,7 +34,7 @@ jobs:
 
       # Cài đặt phụ thuộc
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --only=production
 
       # Build dự án
       - name: Build Project
