@@ -7,8 +7,12 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+
+    # Định nghĩa output để job deploy sử dụng
+    outputs:
+      build_success: ${{ steps.build-step.outcome == 'success' }}
 
     steps:
       - name: Checkout Code
@@ -24,6 +28,33 @@ jobs:
         run: npm install
 
       - name: Build Project
+        id: build-step
+        run: npm run build
+        env:
+          NODE_ENV: production
+          GENERATE_SOURCEMAP: false
+          REACT_APP_VERSION: 1
+          DISABLE_ESLINT_PLUGIN: true
+
+  deploy:
+    needs: build  # Phụ thuộc vào job build
+    if: needs.build.outputs.build_success == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project Again
         run: npm run build
         env:
           NODE_ENV: production
@@ -32,7 +63,7 @@ jobs:
           DISABLE_ESLINT_PLUGIN: true
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GIT_TOKEN }}
           publish_dir: ./build
