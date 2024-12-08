@@ -34,7 +34,9 @@ jobs:
 
       # 3. Cài đặt dependencies mới nhất
       - name: Install Dependencies
-        run: npm i -f
+        run: |
+          npm i
+          npm rebuild node-sass
 
       # 4. Build project
       - name: Build Project
