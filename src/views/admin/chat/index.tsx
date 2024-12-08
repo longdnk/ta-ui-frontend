@@ -1,15 +1,9 @@
 import { Box, Button, Flex, Icon, Input, SimpleGrid, Text, useColorModeValue } from '@chakra-ui/react';
-import { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { MdAutoAwesome, MdPerson } from 'react-icons/md';
+import { useChat } from "../../../hooks";
 
 export default function ChatView() {
-    const [inputCode, setInputCode] = useState<string>('');
-    const [messages, setMessages] = useState<any[]>([{
-        role: 'assistant',
-        content: "Xin chào tôi là chatbot thông minh siêu cấp vip pro có thể giải đáp tất cả các thắc mắc của bạn, nếu bạn cần gì thì cứ nhắn cho tôi, rất vinh hạnh khi được giải đáp thắc mắc của bạn"
-    }]);  // Lưu trữ tin nhắn dưới dạng JSON
-    const [loading, setLoading] = useState<boolean>(false);
-
     const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
 
     // Định nghĩa màu sắc cho các phần tử
@@ -19,32 +13,12 @@ export default function ChatView() {
     const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
     const backgroundColor = useColorModeValue('white', 'navy.900');  // Màu nền trắng cho light và xanh nhạt cho dark
 
-    const handleChange = (event: any) => {
-        setInputCode(event.target.value);
-    };
-
-    const handleSendMessage = () => {
-        if (inputCode.trim()) {
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { role: 'user', content: inputCode },
-                { role: 'assistant', content: `Bot response to: ${inputCode}` },  // Giả lập phản hồi bot
-            ]);
-            setInputCode('');  // Xóa input sau khi gửi
-        }
-    };
-
-    const handleKeyPress = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleSendMessage();  // Gửi tin nhắn khi nhấn Enter
-        }
-    };
+    const { messages, inputMessage, handleChange, handleKeyPress, handleSendMessage, isConnected } = useChat()
 
     // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
     useEffect(() => {
-        if (messages.length > 1) {
-            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
+        if (messages.length > 5) {
+            // chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
         }
     }, [messages]); // Chạy mỗi khi messages thay đổi
 
@@ -82,11 +56,12 @@ export default function ChatView() {
                                 </Flex>
                                 <Box
                                     p="15px"
-                                    border="1px solid"
-                                    borderColor={borderColor}
+                                    border="2px solid black"
+                                    // borderColor={borderColor}
+                                    borderColor={'#7B5AFF'}
                                     borderRadius="14px"
                                     bg={'transparent'}
-                                    maxW="60%"
+                                    maxW="70%"
                                 >
                                     <Text
                                         color={textColor}
@@ -105,7 +80,7 @@ export default function ChatView() {
                     {/* Input and Send Button */}
                     <Flex>
                         <Input
-                            value={inputCode}
+                            value={inputMessage}
                             onChange={handleChange}
                             onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
                             minH="54px"
@@ -115,7 +90,7 @@ export default function ChatView() {
                             p="15px 20px"
                             me="10px"
                             fontSize="sm"
-                            fontWeight="500"
+                            fontWeight="bold"
                             color={inputColor}
                             _placeholder={{ color: placeholderColor }}
                             placeholder="Type your message here..."
@@ -125,7 +100,7 @@ export default function ChatView() {
                             py="20px"
                             px="16px"
                             fontSize="sm"
-                            borderRadius="30px"
+                            borderRadius="12px"
                             ms="auto"
                             h="54px"
                             bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"
@@ -134,10 +109,10 @@ export default function ChatView() {
                                     '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
                                 bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
                             }}
-                            isLoading={loading}
                             color="white"
+                            disabled={!isConnected}
                         >
-                            Send
+                            {isConnected ? "Send" : "Reconnect"}
                         </Button>
                     </Flex>
                 </SimpleGrid>

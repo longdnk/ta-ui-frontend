@@ -26,7 +26,9 @@ import { MdNotificationsNone, MdInfoOutline } from 'react-icons/md';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import { FaEthereum } from 'react-icons/fa';
 import routes from 'routes';
-import { deCrypt, enCryptName } from "../../helper";
+import { clearToken, deCrypt, enCryptName } from "../../helper";
+import RemoveAuth from "../auth/RemoveAuth";
+import { useNavigate } from "react-router-dom";
 export default function HeaderLinks(props: { secondary: boolean }) {
 	const { secondary } = props;
 	const { colorMode, toggleColorMode } = useColorMode();
@@ -44,7 +46,14 @@ export default function HeaderLinks(props: { secondary: boolean }) {
 		'14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
 	);
 	const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
+	const navigate = useNavigate();
 	let userName = localStorage.getItem(enCryptName('userName'));
+
+	const deleteToken = () => {
+		clearToken()
+		navigate('/auth/sign-in')
+		return <RemoveAuth/>
+	}
 
 	return (
 		<Flex
@@ -216,8 +225,9 @@ export default function HeaderLinks(props: { secondary: boolean }) {
 							_focus={{ bg: 'none' }}
 							color='red.400'
 							borderRadius='8px'
-							px='14px'>
-							<Text fontSize='sm'>Log out</Text>
+							px='14px'
+						>
+							<Text fontSize='sm' onClick={() => deleteToken()}>Log out</Text>
 						</MenuItem>
 					</Flex>
 				</MenuList>

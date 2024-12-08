@@ -22,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./schema";
 import { useLoginUserMutation } from "../../../api/auth/auth.slice";
 import { LoginInfo } from "../../../types";
-import useAuth from "../../../hooks/useAuth";
+import { useAuth } from "../../../hooks";
 import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
@@ -33,7 +33,7 @@ const SignIn = () => {
     const [show, setShow] = React.useState<boolean>(false);
     const handleClick = () => setShow(!show);
 
-    const [loginUser, { isLoading, isError, isSuccess }] = useLoginUserMutation()
+    const [loginUser, { isLoading, isSuccess }] = useLoginUserMutation()
     const { addToken } = useAuth()
     const navigate = useNavigate();
 

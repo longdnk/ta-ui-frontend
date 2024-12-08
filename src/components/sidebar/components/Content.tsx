@@ -3,13 +3,11 @@ import { Box, Flex, Stack } from '@chakra-ui/react';
 //   Custom components
 import Brand from 'components/sidebar/components/Brand';
 import Links from 'components/sidebar/components/Links';
-import SidebarCard from 'components/sidebar/components/SidebarCard';
 
 // FUNCTIONS
 
 const SidebarContent = (props: { routes: RoutesType[] }) => {
 	const { routes } = props;
-	console.log(routes);
 	const routesDisplay = routes.filter(route => route.path !== '/sign-in')
 	// SIDEBAR
 	return (
