@@ -48,7 +48,7 @@ jobs:
       # Triển khai dự án lên GitHub Pages
       - name: Deploy with gh-pages
         env:
-          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}  # Token mặc định của GitHub Actions
+          GIT_TOKEN: ${{secrets.GIT_TOKEN}}  # Token mặc định của GitHub Actions
         run: |
-          git remote set-url origin https://git:${{secrets.GIT_TOKEN}}@github.com/${{github.repository}}.git
+          git remote set-url origin https://git:${{secrets.GIT_TOKEN}}@github.com/${{secrets.GIT_REPOSITORY}}.git
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
