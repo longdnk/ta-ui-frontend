@@ -129,7 +129,7 @@ export default function ComplexTable(props: { tableData: any }) {
 			)
 		})
 	];
-	const [ data, setData ] = React.useState(() => [ ...defaultData ]);
+	const [data] = React.useState(() => [ ...defaultData ]);
 	const table = useReactTable({
 		data,
 		columns,
