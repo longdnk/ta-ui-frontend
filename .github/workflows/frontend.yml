@@ -54,7 +54,7 @@ jobs:
           GIT_REPOSITORY: ${{ vars.GIT_REPOSITORY }}
 
         run: |
-          git remote set-url origin https://git:${GIT_TOKEN}@github.com/${longdnk/ta-ui-frontend}.git
+          git remote set-url origin https://git:${GIT_TOKEN}@github.com/longdnk/ta-ui-frontend.git
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
           env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
