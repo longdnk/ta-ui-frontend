@@ -2,7 +2,7 @@
   "name": "ta-ui-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://longdnk.github.io/ta-frontend ",
+  "homepage": "https://longdnk.github.io/ta-frontend",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "@chakra-ui/icons": "^2.0.19",
