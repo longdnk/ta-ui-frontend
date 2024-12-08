@@ -13,6 +13,8 @@ export default function ChatView() {
     const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
     const backgroundColor = useColorModeValue('white', 'navy.900');  // Màu nền trắng cho light và xanh nhạt cho dark
 
+    const reloadPage = () => window.location.reload();
+
     const { messages, inputMessage, handleChange, handleKeyPress, handleSendMessage, isConnected } = useChat()
 
     // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
@@ -39,26 +41,26 @@ export default function ChatView() {
                                     borderRadius="full"
                                     justify="center"
                                     align="center"
-                                    bg={message.role === 'user' ? 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)' : 'transparent'}
+                                    bg={'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)'}
                                     border="1px solid"
                                     borderColor={borderColor}
                                     me="10px"
                                     h="40px"
                                     w="40px"
-                                    background={message.role === 'assistant' ? 'white' : null}
+                                    // background={message.role === 'assistant' ? 'white' : null}
                                 >
                                     <Icon
                                         as={message.role === 'user' ? MdPerson : MdAutoAwesome}
                                         width="20px"
                                         height="20px"
-                                        color={message.role === 'user' ? 'white' : 'purple.600'}
+                                        color={'white'}
                                     />
                                 </Flex>
                                 <Box
                                     p="15px"
                                     border="2px solid black"
                                     // borderColor={borderColor}
-                                    borderColor={'#7B5AFF'}
+                                    borderColor={'#4229fb'}
                                     borderRadius="14px"
                                     bg={'transparent'}
                                     maxW="70%"
@@ -96,7 +98,7 @@ export default function ChatView() {
                             placeholder="Type your message here..."
                         />
                         <Button
-                            onClick={handleSendMessage}
+                            onClick={isConnected ? handleSendMessage : reloadPage}
                             py="20px"
                             px="16px"
                             fontSize="sm"

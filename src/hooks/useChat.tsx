@@ -2,6 +2,8 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { ChatItem, Payload } from "../types";
 import { useAuth } from "./useAuth";
+import { sleep } from "../helper";
+import { PulseLoader } from "react-spinners";
 
 const URL = 'ws://127.0.0.1:9999/models/inference';
 const MAX_RETRY_ATTEMPTS = 100;
@@ -68,7 +70,7 @@ export const useChat = () => {
         }
     };
 
-    const handleKeyPress = (event: React.KeyboardEvent) => {
+    const handleKeyPress = async (event: React.KeyboardEvent) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             updateMessage(chatParam.inputMessage);
@@ -76,20 +78,19 @@ export const useChat = () => {
         }
     };
 
-
     const result = useRef<string>('');
 
     // Cập nhật tin nhắn từ user và thêm tin nhắn assistant mới
     const updateMessage = (message: string) => {
         messages.push(
             { role: 'user', content: message },
-            { role: 'assistant', content: 'Thinking...' }
+            { role: 'assistant', content: <PulseLoader color={'#4229fb'} margin={2} size={8} /> }
         )
         // Reset result for new message
         result.current = '';
     };
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         const item: ChatItem = {
             role: 'system',
             content: `CORE PERSONA:
@@ -123,9 +124,11 @@ export const useChat = () => {
             model_name: 'Qwen/Qwen2.5-72B-Instruct',
             conservation: [item, ...messages],
             max_token: 2048,
-            stream_mode: 'digit'
+            stream_mode: 'token'
         };
-
+        await sleep(500);
+        payload.conservation.pop();
+        payload.conservation.push({ role: 'assistant', content: 'Thinking...' })
         sendJsonMessage(payload);
     };
 
@@ -154,7 +157,6 @@ export const useChat = () => {
                         updatedLastMessage
                     ];
                 }
-
                 return prevMessages;
             });
         }

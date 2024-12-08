@@ -7,10 +7,5 @@ export type Payload = {
 
 export type ChatItem = {
     role: 'system' | 'assistant' | 'user'
-    content: string
-}
-
-export type ChatStatus = {
-    text: string
-    status: string
+    content: string | JSX.Element
 }
