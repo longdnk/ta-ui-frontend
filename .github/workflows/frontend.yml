@@ -52,6 +52,6 @@ jobs:
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
           GIT_REPOSITORY: ${{ github.repository }}
         run: |
-          git remote set-url origin https://git:${GIT_TOKEN}@github.com/${GIT_REPOSITORY}.git
+          git remote set-url origin https://x-access-token:${GIT_TOKEN}@github.com/${github.repository}.git
           echo "Deploying to GitHub Pages..."
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
