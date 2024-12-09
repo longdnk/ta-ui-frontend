@@ -32,6 +32,13 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
+          DISABLE_ESLINT_PLUGIN: ${{ env.DISABLE_ESLINT_PLUGIN }}
+          GENERATE_SOURCEMAP: ${{ env.GENERATE_SOURCEMAP }}
+          REACT_APP_VERSION: ${{ env.REACT_APP_VERSION }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -43,16 +50,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm i -f
-
-      - name: Create env file
-        run: echo "config env" ${{ secrets.NODE_ENV }}
-        env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          NODE_ENV: ${{ secrets.NODE_ENV }}
-          WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
-          DISABLE_ESLINT_PLUGIN: ${{ env.DISABLE_ESLINT_PLUGIN }}
-          GENERATE_SOURCEMAP: ${{ env.GENERATE_SOURCEMAP }}
-          REACT_APP_VERSION: ${{ env.REACT_APP_VERSION }}
 
       - name: Test Page
         run: npm run test
