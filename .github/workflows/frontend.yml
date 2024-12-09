@@ -32,10 +32,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Set up Node ${{ vars.NODE_VERSION }}
+      - name: Set up Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: ${{ vars.NODE_VERSION  }}
+          node-version: ${{ env.NODE_VERSION  }}
 
       - name: Install Dependencies
         run: npm i -f
