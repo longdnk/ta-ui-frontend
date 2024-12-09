@@ -53,7 +53,7 @@ jobs:
          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
-         cat.env
+         cat .env
 
       - name: Test Page
         run: npm run test
