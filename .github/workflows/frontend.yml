@@ -17,6 +17,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  security-events: read
 
 # Allow one concurrent deployment
 concurrency:
@@ -44,13 +45,14 @@ jobs:
         run: npm i -f
 
       - name: Create env file
-        run: |
-          export REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}
-          export NODE_ENV=${{ secrets.NODE_ENV }}
-          export WDS_SOCKET_PATH=${{ secrets.WDS_SOCKET_PATH }}
-          export DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }}
-          export GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }}
-          export REACT_APP_VERSION=${{ env.REACT_APP_VERSION }}
+        run: echo "config env" ${{ secrets.NODE_ENV }}
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
+          DISABLE_ESLINT_PLUGIN: ${{ env.DISABLE_ESLINT_PLUGIN }}
+          GENERATE_SOURCEMAP: ${{ env.GENERATE_SOURCEMAP }}
+          REACT_APP_VERSION: ${{ env.REACT_APP_VERSION }}
 
       - name: Test Page
         run: npm run test
