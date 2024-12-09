@@ -1,7 +1,13 @@
 name: Deploy to GitHub Pages
 
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: ${{ vars.NODE_VERSION }}
+  REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+  NODE_ENV: ${{ vars.NODE_ENV }}
+  WDS_SOCKET_PATH: ${{ vars.WDS_SOCKET_PATH }}
+  DISABLE_ESLINT_PLUGIN: true
+  GENERATE_SOURCEMAP: false
+  REACT_APP_VERSION: 1.1.1
 
 on:
   push:
