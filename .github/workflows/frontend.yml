@@ -1,4 +1,14 @@
 name: Deploy to GitHub Pages
+
+env:
+  NODE_VERSION: 20
+  DISABLE_ESLINT_PLUGIN: true
+  GENERATE_SOURCEMAP: false
+  REACT_APP_VERSION: 1.1.1
+  REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
+
 on:
   push:
     branches: ["main"]
@@ -17,14 +27,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-env:
-  REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-  NODE_ENV: ${{ vars.NODE_ENV }}
-  WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
-  DISABLE_ESLINT_PLUGIN: true
-  GENERATE_SOURCEMAP: false
-  REACT_APP_VERSION: 1.1.1
-
 jobs:
   # Build job
   BUILD:
@@ -42,10 +44,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION  }}
 
-  INSTALL:
-    needs: BUILD
-    runs-on: ubuntu-22.04
-    steps:
       - name: Install Dependencies
         run: npm i -f
 
@@ -66,7 +64,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-22.04
-    needs: INSTALL
+    needs: BUILD
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
