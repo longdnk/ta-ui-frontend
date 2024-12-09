@@ -25,23 +25,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  CREATE_ENV:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Create env file
-        run: |
-          touch .env
-          echo REACT_APP_API_URL=${{ vars.REACT_APP_API_URL }} >> .env
-          echo NODE_ENV=${{ vars.NODE_ENV }} >> .env
-          echo WDS_SOCKET_PATH=${{ vars.WDS_SOCKET_PATH }} >> .env
-          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
-          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
-          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
-          cat .env  
-
   # Build job
   BUILD:
-    needs: CREATE_ENV
     runs-on: ubuntu-22.04
     steps:
 
@@ -58,6 +43,17 @@ jobs:
 
       - name: Install Dependencies
         run: npm i -f
+
+      - name: Create env file
+        run: |
+         touch .env
+         echo REACT_APP_API_URL=${{ vars.REACT_APP_API_URL }} >> .env
+         echo NODE_ENV=${{ vars.NODE_ENV }} >> .env
+         echo WDS_SOCKET_PATH=${{ vars.WDS_SOCKET_PATH }} >> .env
+         echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
+         echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
+         echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
+         cat .env
 
       - name: Test Page
         run: npm run test
