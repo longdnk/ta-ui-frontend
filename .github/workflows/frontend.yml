@@ -25,20 +25,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  log-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log GitHub Actions Secrets
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
+          DISABLE_ESLINT_PLUGIN: ${{ env.DISABLE_ESLINT_PLUGIN }}
+          GENERATE_SOURCEMAP: ${{ env.GENERATE_SOURCEMAP }}
+          REACT_APP_VERSION: ${{ env.REACT_APP_VERSION }}
+
+        run: |
+          echo "Username: $REACT_APP_API_URL"
   # Build job
   BUILD:
     runs-on: ubuntu-22.04
-    env:
-      REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-      NODE_ENV: ${{ secrets.NODE_ENV }}
-      WDS_SOCKET_PATH: ${{ secrets.WDS_SOCKET_PATH }}
-      DISABLE_ESLINT_PLUGIN: ${{ env.DISABLE_ESLINT_PLUGIN }}
-      GENERATE_SOURCEMAP: ${{ env.GENERATE_SOURCEMAP }}
-      REACT_APP_VERSION: ${{ env.REACT_APP_VERSION }}
     steps:
-      - name: display
-        run: |
-          echo "$REACT_APP_API_URL"
+
       - name: Checkout
         uses: actions/checkout@v4
 
