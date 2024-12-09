@@ -1,0 +1,124 @@
+import { Box, Button, Flex, Icon, Input, SimpleGrid, Text, useColorModeValue } from '@chakra-ui/react';
+import React, { useRef, useEffect } from 'react';
+import { MdAutoAwesome, MdPerson } from 'react-icons/md';
+import { useChat } from "../../../hooks";
+
+export default function ChatView() {
+    const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
+
+    // Định nghĩa màu sắc cho các phần tử
+    const borderColor = useColorModeValue('gray.200', 'whiteAlpha.600');
+    const inputColor = useColorModeValue('navy.700', 'white');
+    const textColor = useColorModeValue('navy.700', 'white');
+    const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
+    const backgroundColor = useColorModeValue('white', 'navy.900');  // Màu nền trắng cho light và xanh nhạt cho dark
+
+    const reloadPage = () => window.location.reload();
+
+    const { messages, inputMessage, handleChange, handleKeyPress, handleSendMessage, isConnected } = useChat()
+
+    // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
+    useEffect(() => {
+        if (messages.length > 5) {
+            // chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
+        }
+    }, [messages]); // Chạy mỗi khi messages thay đổi
+
+    return (
+        <>
+            <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="10px" bg={backgroundColor} minH="100vh" mt={'50px'}>
+                <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap="20px" mb="20px">
+                    <Box mb="20px">
+                        {/* Hiển thị các tin nhắn */}
+                        {messages.map((message, index) => (
+                            <Flex
+                                key={index}
+                                direction={message.role === 'user' ? 'row-reverse' : 'row'}
+                                align="center"
+                                mb="15px"
+                            >
+                                <Flex
+                                    borderRadius="full"
+                                    justify="center"
+                                    align="center"
+                                    bg={'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)'}
+                                    border="1px solid"
+                                    borderColor={borderColor}
+                                    me="10px"
+                                    h="40px"
+                                    w="40px"
+                                    // background={message.role === 'assistant' ? 'white' : null}
+                                >
+                                    <Icon
+                                        as={message.role === 'user' ? MdPerson : MdAutoAwesome}
+                                        width="20px"
+                                        height="20px"
+                                        color={'white'}
+                                    />
+                                </Flex>
+                                <Box
+                                    p="15px"
+                                    border="2px solid black"
+                                    // borderColor={borderColor}
+                                    borderColor={'#4229fb'}
+                                    borderRadius="14px"
+                                    bg={'transparent'}
+                                    maxW="70%"
+                                >
+                                    <Text
+                                        color={textColor}
+                                        fontWeight="600"
+                                        fontSize="md"
+                                    >
+                                        {message.content}
+                                    </Text>
+                                </Box>
+                            </Flex>
+                        ))}
+                        {/* Phần cuộn xuống cuối */}
+                        <div ref={chatEndRef}/>
+                    </Box>
+
+                    {/* Input and Send Button */}
+                    <Flex>
+                        <Input
+                            value={inputMessage}
+                            onChange={handleChange}
+                            onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
+                            minH="54px"
+                            border="1px solid"
+                            borderColor={borderColor}
+                            borderRadius="30px"
+                            p="15px 20px"
+                            me="10px"
+                            fontSize="sm"
+                            fontWeight="bold"
+                            color={inputColor}
+                            _placeholder={{ color: placeholderColor }}
+                            placeholder="Type your message here..."
+                        />
+                        <Button
+                            onClick={isConnected ? handleSendMessage : reloadPage}
+                            py="20px"
+                            px="16px"
+                            fontSize="sm"
+                            borderRadius="12px"
+                            ms="auto"
+                            h="54px"
+                            bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"
+                            _hover={{
+                                boxShadow:
+                                    '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
+                                bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
+                            }}
+                            color="white"
+                            disabled={!isConnected}
+                        >
+                            {isConnected ? "Send" : "Reconnect"}
+                        </Button>
+                    </Flex>
+                </SimpleGrid>
+            </Box>
+        </>
+    );
+}

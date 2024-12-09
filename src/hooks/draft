@@ -1,0 +1,61 @@
+import useWebSocket from 'react-use-websocket';
+import { useEffect, useState, useRef } from "react";
+import { ChatItem, Payload } from "../types";
+import { useAuth } from "./useAuth";
+
+export const useChat = () => {
+    const URL = 'ws://127.0.0.1:9999/models/inference'
+    const { userName } = useAuth()
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket(URL);
+    const [messages, setMessages] = useState<ChatItem[]>([{
+        role: 'assistant',
+        content: `Xin chào ${userName.toUpperCase()} tôi là MeMe, tôi có thể giúp bạn giải đáp bất kỳ thắc mắc nào`,
+    }]);  // Lưu trữ tin nhắn dưới dạng JSON
+
+    const updateMessage = (message: string) => {
+        messages.push({ role: 'user', content: message })
+    }
+
+    const result = useRef<string>('');
+
+    const clearResult = () => result.current = ''
+
+    const appendToLastMessage = (token: string) => {
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            const lastMessage = newMessages[newMessages.length - 1];
+            console.log(lastMessage);
+            if (lastMessage.role === 'assistant') {
+                lastMessage.content += token;
+                newMessages[newMessages.length - 1] = lastMessage;
+            }
+            return newMessages;
+        });
+    };
+
+    const sendMessage = () => {
+        const item: ChatItem = {
+            role: 'system',
+            content: 'You are a professional chatbot can explain all content about Aritificial Intelligence, Machine Learning or Deep Learning, please answer question in short and concise way, clearly explain or abstractive summarize if you can',
+        }
+        const payload: Payload = {
+            model_name: 'Qwen/Qwen2.5-72B-Instruct',
+            conservation: [item, ...messages],
+            max_token: 2048,
+            stream_mode: 'token'
+        }
+        sendJsonMessage(payload)
+    }
+
+    useEffect(() => {
+        if (lastJsonMessage !== null) {
+            result.current += lastJsonMessage.text ?? ''
+            appendToLastMessage(result.current);
+        }
+        if (lastJsonMessage?.status === 'done') {
+            clearResult()
+        }
+    }, [lastJsonMessage]);
+
+    return { messages, updateMessage, sendMessage, result: result.current, clearResult };
+}
