@@ -28,6 +28,15 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Review Environment Variables
+        run: |
+          echo "Reviewing Environment Variables:"
+          echo "REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}"
+          echo "NODE_ENV: ${{ vars.NODE_ENV }}"
+          echo "WDS_SOCKET_PATH: ${{ vars.WDS_SOCKET_PATH }}"
+          echo "DISABLE_ESLINT_PLUGIN: ${{ vars.DISABLE_ESLINT_PLUGIN }}"
+          echo "GENERATE_SOURCEMAP: ${{ vars.GENERATE_SOURCEMAP }}"
+          echo "REACT_APP_VERSION: ${{ vars.REACT_APP_VERSION }}"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
