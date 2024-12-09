@@ -2,6 +2,9 @@ name: Deploy to GitHub Pages
 
 env:
   NODE_VERSION: 20
+  DISABLE_ESLINT_PLUGIN: true
+  GENERATE_SOURCEMAP: false
+  REACT_APP_VERSION: 1.1.1
 
 on:
   push:
@@ -28,15 +31,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Review Environment Variables
-        run: |
-          echo "Reviewing Environment Variables:"
-          echo "REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}"
-          echo "NODE_ENV: ${{ vars.NODE_ENV }}"
-          echo "WDS_SOCKET_PATH: ${{ vars.WDS_SOCKET_PATH }}"
-          echo "DISABLE_ESLINT_PLUGIN: ${{ vars.DISABLE_ESLINT_PLUGIN }}"
-          echo "GENERATE_SOURCEMAP: ${{ vars.GENERATE_SOURCEMAP }}"
-          echo "REACT_APP_VERSION: ${{ vars.REACT_APP_VERSION }}"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -49,17 +43,20 @@ jobs:
       - name: Install Dependencies
         run: npm i -f
 
+      - name: Create env file
+        run: |
+          touch .env.production
+          echo REACT_APP_API_URL=${{ vars.REACT_APP_API_URL }} >> .env.production
+          echo NODE_ENV=${{ vars.NODE_ENV }} >> .env.production
+          echo WDS_SOCKET_PATH=${{ vars.WDS_SOCKET_PATH }} >> .env.production
+          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env.production
+          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env.production
+          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env.production 
+
       - name: Test Page
         run: npm run test
 
       - name: Build site
-        env:
-          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          WDS_SOCKET_PATH: ${{ vars.WDS_SOCKET_PATH }}
-          DISABLE_ESLINT_PLUGIN: true
-          GENERATE_SOURCEMAP: false
-          REACT_APP_VERSION: ${{ vars.REACT_APP_VERSION }}
         run: npm run build --if-present
 
       - name: Upload artifact
