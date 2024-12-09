@@ -45,13 +45,14 @@ jobs:
 
       - name: Create env file
         run: |
-          touch .env.production
-          echo REACT_APP_API_URL=${{ vars.REACT_APP_API_URL }} >> .env.production
-          echo NODE_ENV=${{ vars.NODE_ENV }} >> .env.production
-          echo WDS_SOCKET_PATH=${{ vars.WDS_SOCKET_PATH }} >> .env.production
-          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env.production
-          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env.production
-          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env.production 
+          touch .env
+          echo REACT_APP_API_URL=${{ vars.REACT_APP_API_URL }} >> .env
+          echo NODE_ENV=${{ vars.NODE_ENV }} >> .env
+          echo WDS_SOCKET_PATH=${{ vars.WDS_SOCKET_PATH }} >> .env
+          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
+          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
+          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
+          cat .env
 
       - name: Test Page
         run: npm run test
