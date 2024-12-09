@@ -5,7 +5,7 @@ import { useAuth } from "./useAuth";
 import { sleep } from "../helper";
 import { PulseLoader } from "react-spinners";
 
-const URL = 'ws://127.0.0.1:9999/models/inference';
+const URL = process.env.WDS_SOCKET_PATH;
 const MAX_RETRY_ATTEMPTS = 100;
 const RETRY_DELAY = 2000; // 1 giây
 
