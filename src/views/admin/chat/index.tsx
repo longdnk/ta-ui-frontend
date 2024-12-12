@@ -2,6 +2,9 @@ import { Box, Button, Flex, Icon, Input, SimpleGrid, Text, useColorModeValue } f
 import React, { useRef, useEffect } from 'react';
 import { MdAutoAwesome, MdPerson } from 'react-icons/md';
 import { useChat } from "../../../hooks";
+import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 
 export default function ChatView() {
     const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
@@ -58,20 +61,30 @@ export default function ChatView() {
                                 </Flex>
                                 <Box
                                     p="15px"
-                                    border="2px solid black"
-                                    // borderColor={borderColor}
+                                    fontWeight={'bold'}
+                                    border="2px solid"
                                     borderColor={'#4229fb'}
                                     borderRadius="14px"
                                     bg={'transparent'}
-                                    maxW="70%"
+                                    maxW="80%"
                                 >
-                                    <Text
-                                        color={textColor}
-                                        fontWeight="600"
-                                        fontSize="md"
-                                    >
-                                        {message.content}
-                                    </Text>
+                                    {
+                                        typeof message.content === 'string' ?
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                            >
+                                                {message.content}
+                                            </ReactMarkdown>
+                                            :
+                                            <Text
+                                                color={textColor}
+                                                fontWeight="600"
+                                                fontSize="md"
+                                            >
+                                                {message.content}
+                                            </Text>
+                                    }
                                 </Box>
                             </Flex>
                         ))}

@@ -7,5 +7,5 @@ export type Payload = {
 
 export type ChatItem = {
     role: 'system' | 'assistant' | 'user'
-    content: string | JSX.Element
+    content: string | JSX.Element | null;
 }
