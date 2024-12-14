@@ -13,6 +13,7 @@ type ChatParams = {
     inputMessage: string
     connectionStatus: string
     retryCount: number
+    isRender: boolean
 }
 
 // Ánh xạ trạng thái kết nối
@@ -28,7 +29,7 @@ export const useChat = () => {
     const { userName } = useAuth()
     // Thêm các state mới cho kết nối
     const [chatParam, setChatParam] = useState<ChatParams>({
-        inputMessage: '', connectionStatus: 'Uninstantiated', retryCount: 0
+        inputMessage: '', connectionStatus: 'Uninstantiated', retryCount: 0, isRender: false
     })
 
     const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } = useWebSocket(URL, {
@@ -55,7 +56,7 @@ export const useChat = () => {
     const [messages, setMessages] = useState<ChatItem[]>([
         {
             role: 'assistant',
-            content: `Hello ${userName.toUpperCase()}, my name is MeMe your assistant, what you need in Machine Learning, Deep Learning or A.I, what i can do for you !!!`,
+            content: `Hello **${userName.toUpperCase()}**, my name is **MeMe** your assistant, what you need in Machine Learning, Deep Learning or A.I, what i can do for you !!!`,
         }
     ])
 
@@ -66,11 +67,14 @@ export const useChat = () => {
     const handleSendMessage = () => {
         if (chatParam.inputMessage.trim()) {
             sendMessage()
-            setChatParam({ ...chatParam, inputMessage: '' })
+            setChatParam({ ...chatParam, inputMessage: '', isRender: true })
         }
     }
 
     const handleKeyPress = async (event: React.KeyboardEvent) => {
+        if (chatParam.isRender) {
+            return;
+        }
         if (event.key === 'Enter') {
             event.preventDefault()
             updateMessage(chatParam.inputMessage)
@@ -84,14 +88,14 @@ export const useChat = () => {
     const updateMessage = (message: string) => {
         messages.push(
             { role: 'user', content: message },
-            { role: 'assistant', content: <PulseLoader color={'#4229fb'} margin={2} size={8} /> }
+            { role: 'assistant', content: <PulseLoader color={'#4229fb'} margin={2} size={8}/> }
         )
         // Reset result for new message
         result.current = '';
     };
 
-    const sendMessage = () => {
-        const item: ChatItem = {
+    const sendMessage = (chatMod?: string) => {
+        const item: ChatItem = !chatMod ? {
             role: 'system',
             content: `CORE PERSONA:
             - Expert AI Assistant specializing in Artificial Intelligence, Machine Learning, and Deep Learning
@@ -125,19 +129,45 @@ export const useChat = () => {
             Maximize information transfer with minimal words, ensuring the user gains precise understanding of AI, ML, and Deep Learning concepts
             Always enclose math formulas and latex blocks in '$...$' 
             `,
+        } : {
+            role: 'system',
+            content: `You are very helpful assistant and also an expert in summarizing documents,
+                      use all available resources to generate answers to the questions asked.
+                      You can return queries that you think are relevant to the question asked.
+                      You will be asked to summarize a document given by user`
         }
 
         const payload: Payload = {
-            model_name: 'Qwen/Qwen2.5-72B-Instruct',
+            // model_name: 'Qwen/Qwen2.5-72B-Instruct',
             // model_name: "Qwen/QwQ-32B-Preview",
+            // model_name: "Qwen/Qwen2.5-1.5B-Instruct",
+            model_name: "meta-llama/Llama-3.2-3B-Instruct",
+            // model_name: "meta-llama/Llama-3.2-1B-Instruct",
+            // model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
+            // model_name: "meta-llama/Llama-3.1-8B-Instruct",
+            // model_name: "microsoft/Phi-3.5-mini-instruct",
+            // model_name: "microsoft/Phi-3-mini-4k-instruct",
             conservation: [item, ...messages],
             max_token: 2048,
-            stream_mode: 'token'
+            stream_mode: 'token',
+            sleep_time: 0.01
         };
         payload.conservation.pop();
         payload.conservation.push({ role: 'assistant', content: 'Thinking...' })
         sendJsonMessage(payload);
+        result.current = '';
     };
+
+    const resetMessages = () => {
+        setChatParam({ ...chatParam, isRender: true })
+        setMessages(prevMessages => {
+            // Bước 1: Xóa tin nhắn 'role: assistant' cuối cùng
+            const newMessages = prevMessages.slice(0, prevMessages.length - 1);
+
+            // Bước 3: Cập nhật lại tin nhắn assistant cuối cùng
+            return [...newMessages, { role: 'assistant', content: 'Thinking...' }];
+        });
+    }
 
     // Theo dõi trạng thái kết nối
     useEffect(() => {
@@ -167,6 +197,9 @@ export const useChat = () => {
                 return prevMessages;
             });
         }
+        if (lastJsonMessage && lastJsonMessage.status === 'done') {
+            setChatParam({ ...chatParam, isRender: false })
+        }
     }, [lastJsonMessage]);
 
     // Phương thức thử kết nối lại theo yêu cầu
@@ -189,10 +222,13 @@ export const useChat = () => {
         handleKeyPress,
         handleSendMessage,
         sendMessage,
+        resetMessages,
         // Thêm các trạng thái kết nối
         connectionStatus: chatParam.connectionStatus,
         retryCount: chatParam.retryCount,
         manualReconnect,
-        isConnected: readyState === ReadyState.OPEN
+        isConnected: readyState === ReadyState.OPEN,
+        isRender: chatParam.isRender,
+        textResult: result.current,
     };
 };

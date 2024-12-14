@@ -1,148 +1,12 @@
-'use client';
-
 import { Box, Button, Flex, Icon, Input, SimpleGrid, Text, useColorModeValue } from '@chakra-ui/react';
-import { useState, useRef } from 'react';
-import { MdAutoAwesome, MdPerson } from 'react-icons/md';
-
-export default function ChatView() {
-    const [inputCode, setInputCode] = useState<string>('');
-    const [messages, setMessages] = useState<any[]>([]);  // Lưu trữ tin nhắn dưới dạng JSON
-    const [loading, setLoading] = useState<boolean>(false);
-
-    const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
-
-    const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
-    const inputColor = useColorModeValue('navy.700', 'white');
-    const textColor = useColorModeValue('navy.700', 'white');
-    const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
-
-    const handleChange = (event: any) => {
-        setInputCode(event.target.value);
-    };
-
-    const handleSendMessage = () => {
-        if (inputCode.trim()) {
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { role: 'user', content: inputCode },
-                { role: 'assistant', content: `Bot response to: ${inputCode}` },  // Giả lập phản hồi bot
-            ]);
-            setInputCode('');  // Xóa input sau khi gửi
-            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
-        }
-    };
-
-    const handleKeyPress = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleSendMessage();  // Gửi tin nhắn khi nhấn Enter
-        }
-    };
-
-    return (
-        <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="10px">
-            <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap="20px" mb="20px">
-                <Box mb="20px">
-                    {/* Hiển thị các tin nhắn */}
-                    {messages.map((message, index) => (
-                        <Flex
-                            key={index}
-                            direction={message.role === 'user' ? 'row-reverse' : 'row'}
-                            align="center"
-                            mb="15px"
-                        >
-                            <Flex
-                                borderRadius="full"
-                                justify="center"
-                                align="center"
-                                bg={message.role === 'user' ? 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)' : 'transparent'}
-                                border="1px solid"
-                                borderColor={borderColor}
-                                me="10px"
-                                h="40px"
-                                w="40px"
-                            >
-                                <Icon
-                                    as={message.role === 'user' ? MdPerson : MdAutoAwesome}
-                                    width="20px"
-                                    height="20px"
-                                    color={message.role === 'user' ? 'white' : 'purple.600'}
-                                />
-                            </Flex>
-                            <Box
-                                p="15px"
-                                border="1px solid"
-                                borderColor={borderColor}
-                                borderRadius="14px"
-                                bg={message.role === 'user' ? 'transparent' : 'gray.100'}
-                                maxW="80%"
-                            >
-                                <Text
-                                    color={message.role === 'user' ? textColor : 'gray.700'}
-                                    fontWeight="600"
-                                    fontSize="md"
-                                >
-                                    {message.content}
-                                </Text>
-                            </Box>
-                        </Flex>
-                    ))}
-                    {/* Phần cuộn xuống cuối */}
-                    <div ref={chatEndRef} />
-                </Box>
-
-                {/* Input and Send Button */}
-                <Flex>
-                    <Input
-                        value={inputCode}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
-                        minH="54px"
-                        border="1px solid"
-                        borderColor={borderColor}
-                        borderRadius="30px"
-                        p="15px 20px"
-                        me="10px"
-                        fontSize="sm"
-                        fontWeight="500"
-                        color={inputColor}
-                        _placeholder={{ color: placeholderColor }}
-                        placeholder="Type your message here..."
-                    />
-                    <Button
-                        onClick={handleSendMessage}
-                        py="20px"
-                        px="16px"
-                        fontSize="sm"
-                        borderRadius="30px"
-                        ms="auto"
-                        h="54px"
-                        bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"
-                        _hover={{
-                            boxShadow:
-                                '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
-                            bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
-                        }}
-                        isLoading={loading}
-                        color="white"
-                    >
-                        Send
-                    </Button>
-                </Flex>
-            </SimpleGrid>
-        </Box>
-    );
-}
-
-
-# Latest backup
-import { Box, Button, Flex, Icon, Input, SimpleGrid, Text, useColorModeValue } from '@chakra-ui/react';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { MdAutoAwesome, MdPerson } from 'react-icons/md';
 import { useChat } from "../../../hooks";
+import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 
 export default function ChatView() {
-    const [inputCode, setInputCode] = useState<string>('');
     const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
 
     // Định nghĩa màu sắc cho các phần tử
@@ -152,31 +16,14 @@ export default function ChatView() {
     const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
     const backgroundColor = useColorModeValue('white', 'navy.900');  // Màu nền trắng cho light và xanh nhạt cho dark
 
-    const { messages, updateMessage, sendMessage, result } = useChat()
+    const reloadPage = () => window.location.reload();
 
-    const handleChange = (event: any) => {
-        setInputCode(event.target.value);
-    };
-
-    const handleSendMessage = () => {
-        if (inputCode.trim()) {
-            updateMessage(inputCode);
-            sendMessage()
-            setInputCode('')  // Xóa input sau khi gửi
-        }
-    };
-
-    const handleKeyPress = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleSendMessage();  // Gửi tin nhắn khi nhấn Enter
-        }
-    };
+    const { messages, inputMessage, handleChange, handleKeyPress, handleSendMessage, isConnected } = useChat()
 
     // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
     useEffect(() => {
-        if (messages.length > 1) {
-            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
+        if (messages.length > 5) {
+            // chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
         }
     }, [messages]); // Chạy mỗi khi messages thay đổi
 
@@ -197,36 +44,47 @@ export default function ChatView() {
                                     borderRadius="full"
                                     justify="center"
                                     align="center"
-                                    bg={message.role === 'user' ? 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)' : 'transparent'}
+                                    bg={'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)'}
                                     border="1px solid"
                                     borderColor={borderColor}
                                     me="10px"
                                     h="40px"
                                     w="40px"
-                                    background={message.role === 'assistant' ? 'white' : null}
+                                    // background={message.role === 'assistant' ? 'white' : null}
                                 >
                                     <Icon
                                         as={message.role === 'user' ? MdPerson : MdAutoAwesome}
                                         width="20px"
                                         height="20px"
-                                        color={message.role === 'user' ? 'white' : 'purple.600'}
+                                        color={'white'}
                                     />
                                 </Flex>
                                 <Box
                                     p="15px"
-                                    border="1px solid"
-                                    borderColor={borderColor}
+                                    fontWeight={'bold'}
+                                    border="2px solid"
+                                    borderColor={'#4229fb'}
                                     borderRadius="14px"
                                     bg={'transparent'}
-                                    maxW="60%"
+                                    maxW="80%"
                                 >
-                                    <Text
-                                        color={textColor}
-                                        fontWeight="600"
-                                        fontSize="md"
-                                    >
-                                        {message.content}
-                                    </Text>
+                                    {
+                                        typeof message.content === 'string' ?
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                            >
+                                                {message.content}
+                                            </ReactMarkdown>
+                                            :
+                                            <Text
+                                                color={textColor}
+                                                fontWeight="600"
+                                                fontSize="md"
+                                            >
+                                                {message.content}
+                                            </Text>
+                                    }
                                 </Box>
                             </Flex>
                         ))}
@@ -237,7 +95,7 @@ export default function ChatView() {
                     {/* Input and Send Button */}
                     <Flex>
                         <Input
-                            value={inputCode}
+                            value={inputMessage}
                             onChange={handleChange}
                             onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
                             minH="54px"
@@ -247,17 +105,17 @@ export default function ChatView() {
                             p="15px 20px"
                             me="10px"
                             fontSize="sm"
-                            fontWeight="500"
+                            fontWeight="bold"
                             color={inputColor}
                             _placeholder={{ color: placeholderColor }}
                             placeholder="Type your message here..."
                         />
                         <Button
-                            onClick={handleSendMessage}
+                            onClick={isConnected ? handleSendMessage : reloadPage}
                             py="20px"
                             px="16px"
                             fontSize="sm"
-                            borderRadius="30px"
+                            borderRadius="12px"
                             ms="auto"
                             h="54px"
                             bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"
@@ -267,8 +125,9 @@ export default function ChatView() {
                                 bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
                             }}
                             color="white"
+                            disabled={!isConnected}
                         >
-                            Send
+                            {isConnected ? "Send" : "Reconnect"}
                         </Button>
                     </Flex>
                 </SimpleGrid>

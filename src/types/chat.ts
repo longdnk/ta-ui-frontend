@@ -3,6 +3,7 @@ export type Payload = {
     conservation: ChatItem[]
     max_token: number
     stream_mode: 'token' | 'digit' | 'word'
+    sleep_time: number
 }
 
 export type ChatItem = {

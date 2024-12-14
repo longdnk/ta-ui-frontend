@@ -1,7 +1,17 @@
-import { Box, Button, Flex, Icon, Input, SimpleGrid, Text, useColorModeValue } from '@chakra-ui/react';
+import {
+    Box,
+    Button,
+    Flex,
+    Icon,
+    Input, InputGroup,
+    InputRightElement,
+    SimpleGrid,
+    Text,
+    useColorModeValue
+} from '@chakra-ui/react';
 import React, { useRef, useEffect } from 'react';
-import { MdAutoAwesome, MdPerson } from 'react-icons/md';
-import { useChat } from "../../../hooks";
+import { MdAutoAwesome, MdOutlineRefresh, MdPerson, MdFileCopy } from 'react-icons/md';
+import { useChat, useCopyToClipboard } from "../../../hooks";
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
@@ -16,9 +26,30 @@ export default function ChatView() {
     const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
     const backgroundColor = useColorModeValue('white', 'navy.900');  // Màu nền trắng cho light và xanh nhạt cho dark
 
-    const reloadPage = () => window.location.reload();
+    const {
+        messages,
+        inputMessage,
+        sendMessage,
+        resetMessages,
+        handleChange,
+        handleKeyPress,
+        isConnected,
+        isRender,
+        textResult
+    } = useChat()
 
-    const { messages, inputMessage, handleChange, handleKeyPress, handleSendMessage, isConnected } = useChat()
+    const [_, copy] = useCopyToClipboard()
+
+    const handleCopy = (text: string) => {
+        copy(text).then(() => console.log("Done"))
+    }
+
+    const resetResponse = () => {
+        resetMessages();
+        setTimeout(() => {
+            sendMessage();
+        }, 1000)
+    }
 
     // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
     useEffect(() => {
@@ -67,6 +98,7 @@ export default function ChatView() {
                                     borderRadius="14px"
                                     bg={'transparent'}
                                     maxW="80%"
+                                    position="relative"
                                 >
                                     {
                                         typeof message.content === 'string' ?
@@ -85,6 +117,60 @@ export default function ChatView() {
                                                 {message.content}
                                             </Text>
                                     }
+                                    {/* Thêm nút */}
+                                    {
+                                        (message.role === 'assistant' && index > 0 && index === messages.length - 1 && !isRender)
+                                        && (
+                                            <>
+                                                <Box
+                                                    position="absolute" // Định vị tuyệt đối
+                                                    bottom="-15px" // Dịch xuống dưới border của Box
+                                                    right="0px" // Căn giữa theo chiều ngang
+                                                    transform="translateX(-50%)" // Cân bằng dịch chuyển
+                                                    w="30px" // Chiều rộng nút
+                                                    h="30px" // Chiều cao nút
+                                                    bg="#4229fb" // Màu nền của nút
+                                                    borderRadius="full" // Hình tròn
+                                                    border="2px solid white" // Viền trắng để nổi bật hơn
+                                                    boxShadow="lg" // Đổ bóng
+                                                    cursor="pointer" // Thêm hiệu ứng khi hover
+                                                    _hover={{ bg: '#6b4de6' }} // Hiệu ứng màu khi hover
+                                                    onClick={resetResponse}
+                                                >
+                                                    <Icon
+                                                        as={MdOutlineRefresh} // Thay bằng icon bạn muốn, ví dụ: MdInfo
+                                                        color="white"
+                                                        w="24px"
+                                                        h="24px"
+                                                        m={'1px'}
+                                                    />
+                                                </Box>
+                                                <Box
+                                                    position="absolute" // Định vị tuyệt đối
+                                                    bottom="-15px" // Dịch xuống dưới border của Box
+                                                    right="32px" // Căn giữa theo chiều ngang
+                                                    transform="translateX(-50%)" // Cân bằng dịch chuyển
+                                                    w="30px" // Chiều rộng nút
+                                                    h="30px" // Chiều cao nút
+                                                    bg="#4229fb" // Màu nền của nút
+                                                    borderRadius="full" // Hình tròn
+                                                    border="2px solid white" // Viền trắng để nổi bật hơn
+                                                    boxShadow="lg" // Đổ bóng
+                                                    cursor="pointer" // Thêm hiệu ứng khi hover
+                                                    _hover={{ bg: '#6b4de6' }} // Hiệu ứng màu khi hover
+                                                    onClick={() => handleCopy(textResult)}
+                                                >
+                                                    <Icon
+                                                        as={MdFileCopy} // Thay bằng icon bạn muốn, ví dụ: MdInfo
+                                                        color="white"
+                                                        w="24px"
+                                                        h="24px"
+                                                        m={'1px'}
+                                                    />
+                                                </Box>
+                                            </>
+                                        )
+                                    }
                                 </Box>
                             </Flex>
                         ))}
@@ -95,6 +181,7 @@ export default function ChatView() {
                     {/* Input and Send Button */}
                     <Flex>
                         <Input
+                            disabled={!isConnected}
                             value={inputMessage}
                             onChange={handleChange}
                             onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
@@ -110,25 +197,25 @@ export default function ChatView() {
                             _placeholder={{ color: placeholderColor }}
                             placeholder="Type your message here..."
                         />
-                        <Button
-                            onClick={isConnected ? handleSendMessage : reloadPage}
-                            py="20px"
-                            px="16px"
-                            fontSize="sm"
-                            borderRadius="12px"
-                            ms="auto"
-                            h="54px"
-                            bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"
-                            _hover={{
-                                boxShadow:
-                                    '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
-                                bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
-                            }}
-                            color="white"
-                            disabled={!isConnected}
-                        >
-                            {isConnected ? "Send" : "Reconnect"}
-                        </Button>
+                        {/*<Button*/}
+                        {/*    onClick={isConnected ? handleSendMessage : reloadPage}*/}
+                        {/*    py="20px"*/}
+                        {/*    px="16px"*/}
+                        {/*    fontSize="sm"*/}
+                        {/*    borderRadius="12px"*/}
+                        {/*    ms="auto"*/}
+                        {/*    h="54px"*/}
+                        {/*    bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"*/}
+                        {/*    _hover={{*/}
+                        {/*        boxShadow:*/}
+                        {/*            '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',*/}
+                        {/*        bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',*/}
+                        {/*    }}*/}
+                        {/*    color="white"*/}
+                        {/*    disabled={!isConnected}*/}
+                        {/*>*/}
+                        {/*    {isConnected ? "Send" : "Reconnect"}*/}
+                        {/*</Button>*/}
                     </Flex>
                 </SimpleGrid>
             </Box>
