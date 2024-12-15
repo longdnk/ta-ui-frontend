@@ -141,9 +141,9 @@ export const useChat = () => {
             // model_name: 'Qwen/Qwen2.5-72B-Instruct',
             // model_name: "Qwen/QwQ-32B-Preview",
             // model_name: "Qwen/Qwen2.5-1.5B-Instruct",
-            model_name: "meta-llama/Llama-3.2-3B-Instruct",
+            // model_name: "meta-llama/Llama-3.2-3B-Instruct",
             // model_name: "meta-llama/Llama-3.2-1B-Instruct",
-            // model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
+            model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
             // model_name: "meta-llama/Llama-3.1-8B-Instruct",
             // model_name: "microsoft/Phi-3.5-mini-instruct",
             // model_name: "microsoft/Phi-3-mini-4k-instruct",
@@ -165,8 +165,12 @@ export const useChat = () => {
             const newMessages = prevMessages.slice(0, prevMessages.length - 1);
 
             // Bước 3: Cập nhật lại tin nhắn assistant cuối cùng
-            return [...newMessages, { role: 'assistant', content: 'Thinking...' }];
+            return [...newMessages,
+                { role: 'assistant', content: <PulseLoader color={'#4229fb'} margin={2} size={8}/> }
+            ];
         });
+        messages.pop()
+        messages.push({ role: 'assistant', content: 'Thinking...' })
     }
 
     // Theo dõi trạng thái kết nối

@@ -46,9 +46,7 @@ export default function ChatView() {
 
     const resetResponse = () => {
         resetMessages();
-        setTimeout(() => {
-            sendMessage();
-        }, 1000)
+        sendMessage();
     }
 
     // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
@@ -163,9 +161,9 @@ export default function ChatView() {
                                                     <Icon
                                                         as={MdFileCopy} // Thay bằng icon bạn muốn, ví dụ: MdInfo
                                                         color="white"
-                                                        w="24px"
-                                                        h="24px"
-                                                        m={'1px'}
+                                                        w="18px"
+                                                        h="18px"
+                                                        m={'4px'}
                                                     />
                                                 </Box>
                                             </>
