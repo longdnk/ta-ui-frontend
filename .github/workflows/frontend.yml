@@ -1,0 +1,79 @@
+name: Deploy to GitHub Pages
+
+env:
+  NODE_VERSION: 20
+  DISABLE_ESLINT_PLUGIN: true
+  GENERATE_SOURCEMAP: false
+  REACT_APP_VERSION: 1.1.1
+
+on:
+  push:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  security-events: read
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Build job
+  BUILD:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION  }}
+
+      - name: Install Dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Create env file
+        run: |
+         touch .env
+         echo REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} >> .env
+         echo NODE_ENV=${{ env.NODE_ENV }} >> .env
+         echo WDS_SOCKET_PATH=${{ secrets.WDS_SOCKET_PATH }} >> .env
+         echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
+         echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
+         echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
+         cat .env
+
+      - name: Test Page
+        run: yarn test
+
+      - name: Build site
+        run: yarn build --if-present
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: ./build # CRA build output folder
+
+  # Deployment job
+  DEPLOY:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-22.04
+    needs: BUILD
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
