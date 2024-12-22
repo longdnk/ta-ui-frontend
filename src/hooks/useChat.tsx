@@ -2,7 +2,6 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { ChatItem, Payload } from "../types";
 import { useAuth } from "./useAuth";
-import { sleep } from "../helper";
 import { PulseLoader } from "react-spinners";
 
 const URL = process.env.WDS_SOCKET_PATH;
@@ -94,8 +93,8 @@ export const useChat = () => {
         result.current = '';
     };
 
-    const sendMessage = (chatMod?: string) => {
-        const item: ChatItem = !chatMod ? {
+    const sendMessage = () => {
+        const item: ChatItem = {
             role: 'system',
             content: `CORE PERSONA:
             - Expert AI Assistant specializing in Artificial Intelligence, Machine Learning, and Deep Learning
@@ -129,21 +128,15 @@ export const useChat = () => {
             Maximize information transfer with minimal words, ensuring the user gains precise understanding of AI, ML, and Deep Learning concepts
             Always enclose math formulas and latex blocks in '$...$' 
             `,
-        } : {
-            role: 'system',
-            content: `You are very helpful assistant and also an expert in summarizing documents,
-                      use all available resources to generate answers to the questions asked.
-                      You can return queries that you think are relevant to the question asked.
-                      You will be asked to summarize a document given by user`
         }
 
         const payload: Payload = {
             // model_name: 'Qwen/Qwen2.5-72B-Instruct',
             // model_name: "Qwen/QwQ-32B-Preview",
             // model_name: "Qwen/Qwen2.5-1.5B-Instruct",
-            // model_name: "meta-llama/Llama-3.2-3B-Instruct",
+            model_name: "meta-llama/Llama-3.2-3B-Instruct",
             // model_name: "meta-llama/Llama-3.2-1B-Instruct",
-            model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
+            // model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
             // model_name: "meta-llama/Llama-3.1-8B-Instruct",
             // model_name: "microsoft/Phi-3.5-mini-instruct",
             // model_name: "microsoft/Phi-3-mini-4k-instruct",

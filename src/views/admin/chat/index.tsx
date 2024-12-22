@@ -109,7 +109,7 @@ export default function ChatView() {
                                             :
                                             <Text
                                                 color={textColor}
-                                                fontWeight="600"
+                                                // fontWeight="600"
                                                 fontSize="md"
                                             >
                                                 {message.content}
