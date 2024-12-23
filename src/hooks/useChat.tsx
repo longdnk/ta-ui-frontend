@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { ChatItem, Payload } from "../types";
 import { useAuth } from "./useAuth";
 import { PulseLoader } from "react-spinners";
+import { useRagQueryMutation } from "../api/rag/rag.slice";
 
 const URL = process.env.WDS_SOCKET_PATH;
 const MAX_RETRY_ATTEMPTS = 100;
@@ -31,6 +32,8 @@ export const useChat = () => {
         inputMessage: '', connectionStatus: 'Uninstantiated', retryCount: 0, isRender: false
     })
 
+    const [ragQuery, { isLoading, isSuccess, data }] = useRagQueryMutation()
+
     const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } = useWebSocket(URL, {
         // Tùy chọn kết nối
         shouldReconnect: closeEvent => {
@@ -55,7 +58,7 @@ export const useChat = () => {
     const [messages, setMessages] = useState<ChatItem[]>([
         {
             role: 'assistant',
-            content: `Hello **${userName.toUpperCase()}**, my name is **MeMe** your assistant, what you need in Machine Learning, Deep Learning or A.I, what i can do for you !!!`,
+            content: `Chào **${userName.toUpperCase()}**, tôi tên là **MeMe** trợ lý của bạn, tôi có thể hỏi đáp các thắc mắc về dịch vụ tài chính, tiền tệ hoặc ví trả trước trả sau và các vấn đề liên quan tới MoMo !!!`,
         }
     ])
 
@@ -70,7 +73,7 @@ export const useChat = () => {
         }
     }
 
-    const handleKeyPress = async (event: React.KeyboardEvent) => {
+    const handleKeyPress = (event: React.KeyboardEvent) => {
         if (chatParam.isRender) {
             return;
         }
@@ -93,55 +96,38 @@ export const useChat = () => {
         result.current = '';
     };
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
+        const data = await retrieveInfo()
         const item: ChatItem = {
             role: 'system',
-            content: `CORE PERSONA:
-            - Expert AI Assistant specializing in Artificial Intelligence, Machine Learning, and Deep Learning
-            - Communication Protocol:
-                1. Always provide direct, precise, and technically accurate answers, precise answers using Markdown.
-                2. Prioritize clarity and technical depth over verbosity
-                3. Explain complex concepts in the most straightforward manner possible
-                4. Always enclose math formulas and latex blocks in '$...$' 
-                5. Use **KaTeX syntax** only for complex math expressions (e.g., $\\sigma(Wx + b)$).
-                6. Do not format simple symbols like \\( w_t \\) or \\( v_t \\) unless part of a formula.
-            RESPONSE GUIDELINES:
-            - Direct Questions: Deliver clear, concise definitions with key technical details
-            - Comparative Queries: Structured comparison using:
-                * Precise technical differences
-                * Pros and cons
-                * Practical application scenarios
-                * Always enclose math formulas and latex blocks in '$...$' 
-            - Technical Depth: Balance technical accuracy with understandable language
-            - Avoid: Redundant explanations, filler content, casual language
-             COMMUNICATION STYLE:
-            - Your name is MeMe
-            - Professional and academic tone
-            - Use domain-specific terminology accurately
-            - Provide context when necessary, but remain succinct
-            - If a full explanation requires more detail, offer to elaborate
-            - Your answer must be fit with Latex and Markdown style.
-            - All formulas must use **Latex syntax**, not Katex.
-            - Use plain Markdown for regular text and simple inline math.
-            - Enclose math formulas in '$...$' for clarity.
-            CORE OBJECTIVE:
-            Maximize information transfer with minimal words, ensuring the user gains precise understanding of AI, ML, and Deep Learning concepts
-            Always enclose math formulas and latex blocks in '$...$' 
-            `,
+            content: `
+            Bạn là một chatbot thông minh thuộc Công ty Cổ phần Dịch vụ Di Động Trực tuyến (M_Service) 
+            được biết tới với tên là MoMo, 
+            nhiệm vụ của bạn là hỏi đáp các thông tin về dịch vụ của MoMo, 
+            hãy luôn dựa vào context(thông tin cơ sở) được cung cấp để trả lời câu hỏi, 
+            với các câu hỏi mà bạn cảm thấy thông tin trong context và nội dung câu hỏi không khớp 
+            hoặc ngữ cảnh không phù hợp thì hãy hoặc bạn thực sự không biết câu trả lời thì hãy trả lời là bạn không biết, 
+            lưu ý là không được bịa ra thông tin và trả lời câu hỏi một cách ngắn gọn nhất có thể, và một lần nữa nhớ là tên bạn là MeMe
+            context: ${data}
+            bạn lưu ý luôn luôn phải để đưởng dẫn thông tin (các đường https://) vào câu trả lời nếu có thể nhé !!!
+            Ưu tiên trả lời bằng tiếng Việt và chỉ trả lời bằng ngôn ngữ khác khi cần thiết
+            Không cần phải chào người dùng quá nhiều.
+            Nếu người dùng chào bạn, hoặc làm các hành động tương tự hãy nói bạn tên là **MeMe** và rất vui được phục vụ là được
+            `
         }
 
         const payload: Payload = {
             // model_name: 'Qwen/Qwen2.5-72B-Instruct',
             // model_name: "Qwen/QwQ-32B-Preview",
             // model_name: "Qwen/Qwen2.5-1.5B-Instruct",
-            model_name: "meta-llama/Llama-3.2-3B-Instruct",
+            // model_name: "meta-llama/Llama-3.2-3B-Instruct",
             // model_name: "meta-llama/Llama-3.2-1B-Instruct",
-            // model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
+            model_name: "meta-llama/Meta-Llama-3-8B-Instruct",
             // model_name: "meta-llama/Llama-3.1-8B-Instruct",
             // model_name: "microsoft/Phi-3.5-mini-instruct",
             // model_name: "microsoft/Phi-3-mini-4k-instruct",
             conservation: [item, ...messages],
-            max_token: 2048,
+            max_token: 1024,
             stream_mode: 'token',
             sleep_time: 0.01
         };
@@ -151,7 +137,7 @@ export const useChat = () => {
         result.current = '';
     };
 
-    const resetMessages = () => {
+    const resetMessages = useCallback(() => {
         setChatParam({ ...chatParam, isRender: true })
         setMessages(prevMessages => {
             // Bước 1: Xóa tin nhắn 'role: assistant' cuối cùng
@@ -164,38 +150,52 @@ export const useChat = () => {
         });
         messages.pop()
         messages.push({ role: 'assistant', content: 'Thinking...' })
+    }, [setChatParam, setMessages, messages]);
+
+    const updateMessageContent = useCallback((prevMessages: ChatItem[], content: string) => {
+        const lastMessage = prevMessages[prevMessages.length - 1];
+
+        if (lastMessage?.role !== 'assistant') return prevMessages;
+
+        return [
+            ...prevMessages.slice(0, prevMessages.length - 1),
+            { ...lastMessage, content }
+        ];
+    }, []);
+
+    const retrieveInfo = async () => {
+        try {
+            const response = await ragQuery({ text: chatParam.inputMessage }).unwrap()
+            return response.data;
+        }
+        catch (e) {
+            return "error"
+        }
     }
 
     // Theo dõi trạng thái kết nối
     useEffect(() => {
         const status = connectionStatusMap[readyState];
         setChatParam({ ...chatParam, connectionStatus: status });
-    }, [readyState]);
+    }, [readyState, setChatParam]);
 
     useEffect(() => {
-        if (lastJsonMessage && lastJsonMessage.status !== 'done') {
-            const token = lastJsonMessage.text;
+        if (!lastJsonMessage) return;
 
-            // Cộng token vào result.current theo chế độ stream
-            result.current += token;
+        const { status, text } = lastJsonMessage;
 
-            setMessages(prevMessages => {
-                const lastMessage = prevMessages[prevMessages.length - 1];
-
-                if (lastMessage && lastMessage.role === 'assistant') {
-                    // Cập nhật tin nhắn assistant cuối cùng theo chế độ stream
-                    const updatedLastMessage = { ...lastMessage, content: result.current };
-
-                    return [
-                        ...prevMessages.slice(0, prevMessages.length - 1),
-                        updatedLastMessage
-                    ];
-                }
-                return prevMessages;
-            });
-        }
-        if (lastJsonMessage && lastJsonMessage.status === 'done') {
-            setChatParam({ ...chatParam, isRender: false })
+        switch (status) {
+            case 'done': {
+                setChatParam(prev => ({ ...prev, isRender: false }));
+                result.current = ""
+                break;
+            }
+            default: {
+                if (status === 'done') break;
+                result.current += text;
+                // Batch update: chỉ update UI sau mỗi N tokens
+                setMessages(prev => updateMessageContent(prev, result.current));
+            }
         }
     }, [lastJsonMessage]);
 

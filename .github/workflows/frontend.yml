@@ -53,6 +53,7 @@ jobs:
          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
+         echo REACT_APP_API_KEY=https://api.supercharge.vn:8899/endpoint >> .env
          cat .env
 
       - name: Test Page
