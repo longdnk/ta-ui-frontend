@@ -1,12 +1,14 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { authApi } from "../api/auth/auth.slice";
+import { ragApi } from "../api/rag/rag.slice";
 
-const middlewares = [authApi.middleware];
+const middlewares = [authApi.middleware, ragApi.middleware];
 
 export const store = configureStore({
     reducer: {
         // Auth api
         [authApi.reducerPath]: authApi.reducer,
+        [ragApi.reducerPath]: ragApi.reducer
     },
     // Add middleware item
     middleware(getDefaultMiddleware) {
