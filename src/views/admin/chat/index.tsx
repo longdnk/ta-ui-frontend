@@ -3,7 +3,8 @@ import {
     Button,
     Flex,
     Icon,
-    Input, InputGroup,
+    Input,
+    InputGroup,
     InputRightElement,
     SimpleGrid,
     Text,
@@ -18,6 +19,7 @@ import remarkMath from 'remark-math';
 
 export default function ChatView() {
     const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
+    const [_, copy] = useCopyToClipboard()
 
     // Định nghĩa màu sắc cho các phần tử
     const borderColor = useColorModeValue('gray.200', 'whiteAlpha.600');
@@ -31,14 +33,23 @@ export default function ChatView() {
         inputMessage,
         sendMessage,
         resetMessages,
-        handleChange,
-        handleKeyPress,
-        isConnected,
         isRender,
-        textResult
+        textResult,
+        chatParam,
+        setChatParam,
+        updateMessage
     } = useChat()
 
-    const [_, copy] = useCopyToClipboard()
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setChatParam({ ...chatParam, inputMessage: event.target.value });
+    }
+
+    const handleSendMessage = () => {
+        if (chatParam.inputMessage.trim()) {
+            sendMessage()
+            setChatParam({ ...chatParam, inputMessage: '', isRender: true })
+        }
+    }
 
     const handleCopy = (text: string) => {
         copy(text).then(() => console.log("Done"))
@@ -49,19 +60,28 @@ export default function ChatView() {
         sendMessage();
     }
 
-    // Đảm bảo cuộn xuống cuối khi có tin nhắn mới
+    const handleKeyPress = (event: React.KeyboardEvent) => {
+        if (chatParam.isRender) {
+            return;
+        }
+        if (event.key === 'Enter') {
+            event.preventDefault()
+            updateMessage(chatParam.inputMessage)
+            handleSendMessage()
+        }
+    };
+
     useEffect(() => {
         if (messages.length > 5) {
             // chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); // Cuộn xuống cuối
         }
-    }, [messages]); // Chạy mỗi khi messages thay đổi
+    }, [messages]);
 
     return (
         <>
             <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="10px" bg={backgroundColor} minH="100vh" mt={'50px'}>
                 <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap="20px" mb="20px">
                     <Box mb="20px">
-                        {/* Hiển thị các tin nhắn */}
                         {messages.map((message, index) => (
                             <Flex
                                 key={index}
@@ -109,30 +129,28 @@ export default function ChatView() {
                                             :
                                             <Text
                                                 color={textColor}
-                                                // fontWeight="600"
                                                 fontSize="md"
                                             >
                                                 {message.content}
                                             </Text>
                                     }
-                                    {/* Thêm nút */}
                                     {
                                         (message.role === 'assistant' && index > 0 && index === messages.length - 1 && !isRender)
                                         && (
                                             <>
                                                 <Box
-                                                    position="absolute" // Định vị tuyệt đối
-                                                    bottom="-15px" // Dịch xuống dưới border của Box
-                                                    right="0px" // Căn giữa theo chiều ngang
-                                                    transform="translateX(-50%)" // Cân bằng dịch chuyển
-                                                    w="30px" // Chiều rộng nút
-                                                    h="30px" // Chiều cao nút
-                                                    bg="#4229fb" // Màu nền của nút
-                                                    borderRadius="full" // Hình tròn
-                                                    border="2px solid white" // Viền trắng để nổi bật hơn
-                                                    boxShadow="lg" // Đổ bóng
-                                                    cursor="pointer" // Thêm hiệu ứng khi hover
-                                                    _hover={{ bg: '#6b4de6' }} // Hiệu ứng màu khi hover
+                                                    position="absolute"
+                                                    bottom="-15px"
+                                                    right="0px"
+                                                    transform="translateX(-50%)"
+                                                    w="30px"
+                                                    h="30px"
+                                                    bg="#4229fb"
+                                                    borderRadius="full"
+                                                    border="2px solid white"
+                                                    boxShadow="lg"
+                                                    cursor="pointer"
+                                                    _hover={{ bg: '#6b4de6' }}
                                                     onClick={resetResponse}
                                                 >
                                                     <Icon
@@ -172,14 +190,13 @@ export default function ChatView() {
                                 </Box>
                             </Flex>
                         ))}
-                        {/* Phần cuộn xuống cuối */}
                         <div ref={chatEndRef}/>
                     </Box>
 
                     {/* Input and Send Button */}
                     <Flex>
                         <Input
-                            disabled={!isConnected}
+                            disabled={isRender}
                             value={inputMessage}
                             onChange={handleChange}
                             onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
@@ -195,25 +212,6 @@ export default function ChatView() {
                             _placeholder={{ color: placeholderColor }}
                             placeholder="Type your message here..."
                         />
-                        {/*<Button*/}
-                        {/*    onClick={isConnected ? handleSendMessage : reloadPage}*/}
-                        {/*    py="20px"*/}
-                        {/*    px="16px"*/}
-                        {/*    fontSize="sm"*/}
-                        {/*    borderRadius="12px"*/}
-                        {/*    ms="auto"*/}
-                        {/*    h="54px"*/}
-                        {/*    bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"*/}
-                        {/*    _hover={{*/}
-                        {/*        boxShadow:*/}
-                        {/*            '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',*/}
-                        {/*        bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',*/}
-                        {/*    }}*/}
-                        {/*    color="white"*/}
-                        {/*    disabled={!isConnected}*/}
-                        {/*>*/}
-                        {/*    {isConnected ? "Send" : "Reconnect"}*/}
-                        {/*</Button>*/}
                     </Flex>
                 </SimpleGrid>
             </Box>
