@@ -49,11 +49,11 @@ jobs:
          touch .env
          echo REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} >> .env
          echo NODE_ENV=${{ env.NODE_ENV }} >> .env
+         echo WDS_SOCKET_PATH=${{ secrets.WDS_SOCKET_PATH }} >> .env
+         echo REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }} >> .env
          echo DISABLE_ESLINT_PLUGIN=${{ env.DISABLE_ESLINT_PLUGIN }} >> .env
          echo GENERATE_SOURCEMAP=${{ env.GENERATE_SOURCEMAP }} >> .env
          echo REACT_APP_VERSION=${{ env.REACT_APP_VERSION }} >> .env
-         echo WDS_SOCKET_PATH=${{ secrets.WDS_SOCKET_PATH }} >> .env
-         echo REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }} >> .env
          cat .env
 
       - name: Test Page
