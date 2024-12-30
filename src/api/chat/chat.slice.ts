@@ -1,14 +1,16 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Payload } from "../../types";
 
+const baseUrl = process.env.REACT_APP_API_KEY
+
 export const chatApi = createApi({
     reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_API_KEY, method: 'POST' }),
+    baseQuery: fetchBaseQuery({ baseUrl: baseUrl, method: 'POST' }),
     endpoints: (builder) => ({
         chatStream: builder.mutation<string, Payload>({
             queryFn: async (body, _queryApi, _extraOptions) => {
                 try {
-                    const response = await fetch(`${process.env.REACT_APP_API_KEY}/models/inference`, {
+                    const response = await fetch(`${baseUrl}/models/inference`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(body),
