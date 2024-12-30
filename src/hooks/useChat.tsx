@@ -4,6 +4,7 @@ import { useAuth } from "./useAuth";
 import { PulseLoader } from "react-spinners";
 import { useRagQueryMutation } from "../api/rag/rag.slice";
 import { useChatStreamMutation } from "../api/chat/chat.slice";
+import { sleep } from "../helper";
 
 type ChatParams = {
     inputMessage: string
@@ -60,7 +61,7 @@ export const useChat = () => {
             Bạn là MeMe, một chatbot hỏi đáp thông tin về MoMo thuộc
             Công ty Cổ phần Dịch vụ Di Động Trực tuyến (viết tắt M_Service) là công FinTech được thành lập từ 2007 hoạt động chính trong lĩnh vực thanh toán trên di động (mobile payment) dưới thương hiệu MoMo
             Bạn luôn phải trả lời dựa vào phần context được cung cấp bên dưới, luôn luôn sử dụng thông tin trong context để hỏi đáp thay vì những dữ liệu trong hiểu biết của bạn
-            Trả lời một cách ngắn gọn và đủ ý, 
+            Trả lời một cách ngắn gọn và đủ ý, nhưng nếu người dùng yêu cầu liệt kê chi tiết thì cứ liệt kê càng chi tiết càng tốt nhé.
             ví dụ: 
             - hỏi 'MoMo là gì', đáp: 'MoMo là...'.
             - hỏi 'MoMo cung cấp các dịch vụ gì', đáp: 'MoMo cung cấp các dịch vụ ...'
@@ -71,6 +72,7 @@ export const useChat = () => {
                 - Hãy luôn ưu tiên trả lời bằng tiếng Việt, trả lời bằng ngôn ngữ khác khi cần thiết nhưng hạn chế.
                 - Nếu có thông tin đường dẫn (các đường http://) trong context hãy bỏ hết các đường link này vào.
                 - Nếu người dùng chào bạn cứ chào và trả lời lại là bạn sẽ hỗ trợ họ mọi thông tin hỏi đáp trong MoMo.
+                - Luôn trả lời dựa vào context tuy nhiên tránh ghi các câu như là 'dựa vào context, ...' mà hãy thay thế bằng 'dựa vào thông tin tôi biết được...'
             context: ${data}
             `
         }
@@ -94,7 +96,7 @@ export const useChat = () => {
         payload.conservation.push({ role: 'assistant', content: 'Thinking...' })
         result.current = '';
         // logic send message
-        // await callStreamApi(payload)
+        await sleep(1000);
         await chatStream({...payload, callbackResult: setResult, callbackReset: resetItem});
     };
 
