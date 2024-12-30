@@ -96,7 +96,6 @@ export const useChat = () => {
         payload.conservation.push({ role: 'assistant', content: 'Thinking...' })
         result.current = '';
         // logic send message
-        await sleep(1000);
         await chatStream({...payload, callbackResult: setResult, callbackReset: resetItem});
     };
 
