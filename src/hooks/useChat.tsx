@@ -76,7 +76,8 @@ Lưu ý:
 - Tránh trả lời bằng tiếng Anh hoặc trong câu trả lời có tiếng Anh !!!
 - Loại bỏ các phần thừa như là 'dựa vào context ta có' hay 'according context ...', nếu có thì phải dịch sang tiếng Việt giúp tôi.
 - Luôn trả lời dựa theo hiểu biết của bạn và context, đừng bao giờ 'bịa đặt câu trả lời'.
-context: ${data}
+Nên nhớ là tránh trả lời bằng tiếng Anh trong mọi tình huống vì người dùng của bạn rất chi là không thích điều này, bạn sẽ làm họ có trải nghiệm cực kỳ tồi!!!
+Context: ${data}
             `
         }
 
