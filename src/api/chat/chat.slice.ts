@@ -32,7 +32,7 @@ export const chatApi = createApi({
 
                         if (value) {
                             const chunk = decoder.decode(value);
-                            console.log(chunk)
+                            process.stdout.write(chunk)
                             result.push(chunk)
                             body.callbackResult(chunk)
                         }
