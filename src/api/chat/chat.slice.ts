@@ -35,8 +35,8 @@ export const chatApi = createApi({
                             result.push(chunk)
                             body.callbackResult(chunk)
                         }
-                        console.log(result);
                     }
+                    console.log(result.toString())
                     body.callbackReset(false)
                     return { data: result.toString() }
                 } catch (error: any) {
