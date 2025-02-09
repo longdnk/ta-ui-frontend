@@ -1,6 +1,5 @@
 import {
     Box,
-    Button,
     Flex,
     Icon,
     Input,
@@ -10,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useRef, useEffect } from 'react';
 import { MdAutoAwesome, MdOutlineRefresh, MdPerson, MdFileCopy } from 'react-icons/md';
-import { useChat, useCopyToClipboard } from "../../../hooks";
+import { useChat, useCopyToClipboard, useQuestion } from "../../../hooks";
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
@@ -41,6 +40,8 @@ export default function ChatView() {
         isRetrieving
     } = useChat();
 
+    const { checkSimilarity } = useQuestion()
+
     const isInference = isRender || isChatting || isRetrieving;
 
     useEffect(() => {
@@ -53,10 +54,10 @@ export default function ChatView() {
         setChatParam({ ...chatParam, inputMessage: event.target.value });
     };
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (chatParam.inputMessage.trim()) {
-            sendMessage();
             setChatParam({ ...chatParam, inputMessage: '', isRender: true });
+            await sendMessage();
         }
     };
 
@@ -64,17 +65,17 @@ export default function ChatView() {
         copy(text).then(() => console.log("Copied!"));
     };
 
-    const resetResponse = () => {
+    const resetResponse = async () => {
         resetMessages();
-        sendMessage();
+        await sendMessage();
     };
 
-    const handleKeyPress = (event: React.KeyboardEvent) => {
+    const handleKeyPress = async (event: React.KeyboardEvent) => {
         if (chatParam.isRender) return;
         if (event.key === 'Enter') {
             event.preventDefault();
             updateMessage(chatParam.inputMessage);
-            handleSendMessage();
+            await handleSendMessage();
         }
     };
 
@@ -83,14 +84,21 @@ export default function ChatView() {
             position={'fixed'}
             pt={{ base: '130px', md: '80px', xl: '80px' }}
             px="10px"
-            borderRadius={'10px'}
             bg={backgroundColor}
-            minH="100vh"
+            minH={'90vh'}
             display="flex"
             flexDirection="column"
-            mx="auto"
+            mx="4uto"
+            mt={'50px'}
+            borderRadius={'10px'}
         >
-            <SimpleGrid columns={1} gap="10px" mb="20px" flex="1" overflowY="auto" maxH="570px">
+            <SimpleGrid
+                mb="20px"
+                gap="10px"
+                columns={1}
+                maxH="550px"
+                overflowY="auto"
+            >
                 {messages.map((message, index) => (
                     <Flex
                         key={index}
@@ -123,7 +131,7 @@ export default function ChatView() {
                             borderColor="#4229fb"
                             borderRadius="14px"
                             bg="transparent"
-                            maxW={{ base: "90%", md: "80%" }}
+                            maxW={{ base: "80%", md: "90%" }}
                             position="relative"
                             marginRight={'10px'}
                         >
@@ -196,18 +204,28 @@ export default function ChatView() {
                         </Box>
                     </Flex>
                 ))}
-                <div ref={chatEndRef}/>
+                <div ref={chatEndRef}></div>
             </SimpleGrid>
-            <Flex p="10px" bg={backgroundColor} flexDirection={{ base: "column", md: "row" }}>
+            <Flex
+                p="10px"
+                bg={backgroundColor}
+                flexDirection={{ base: "column", md: "row" }}
+                position="absolute"
+                bottom="0"
+                left="0"
+                right="0"
+                align="center"
+                borderRadius={'10px'}
+            >
                 <Input
                     focusBorderColor="#4229fb"
-                    disabled={isChatting}
+                    disabled={isInference}
                     value={inputMessage}
                     onChange={handleChange}
                     onKeyDown={handleKeyPress}
                     minH="54px"
                     borderColor={borderColor}
-                    borderRadius="30px"
+                    borderRadius="20px"
                     p="15px 20px"
                     fontSize="sm"
                     fontWeight="bold"
@@ -216,16 +234,6 @@ export default function ChatView() {
                     _placeholder={{ color: placeholderColor }}
                     flex="1"
                 />
-                <Button
-                    ml={{ base: "0", md: "10px" }}
-                    mt={{ base: "10px", md: "5px" }}
-                    colorScheme="blue"
-                    onClick={handleSendMessage}
-                    isDisabled={isInference}
-                    isLoading={isInference}
-                >
-                    Send
-                </Button>
             </Flex>
         </Box>
     );

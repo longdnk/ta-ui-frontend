@@ -4,6 +4,7 @@ import { useAuth } from "./useAuth";
 import { PulseLoader } from "react-spinners";
 import { useChatStreamMutation } from "../api/chat/chat.slice";
 import { useRagStreamMutation } from "../api/rag/rag.slice"
+import { useQuestion } from "./useQuestion";
 
 type ChatParams = {
     inputMessage: string
@@ -31,7 +32,6 @@ export const useChat = () => {
         setChatParam({ ...chatParam, inputMessage: '', isRender: isRender });
     }
 
-    // State chat ban đầu chứa các tin nhắn giữa user và assistant
     const [messages, setMessages] = useState<ChatItem[]>([
         {
             role: 'assistant',
@@ -41,7 +41,8 @@ export const useChat = () => {
 
     const result = useRef<string>('');
 
-    // Cập nhật tin nhắn từ user và thêm tin nhắn assistant mới
+    const { checkSimilarity } = useQuestion()
+
     const updateMessage = (message: string) => {
         messages.push(
             { role: 'user', content: message },
@@ -52,7 +53,7 @@ export const useChat = () => {
     };
 
     const sendMessage = async () => {
-
+        // checkSimilarity(messages[])
         const item: ChatItem = {
             role: 'system',
             content: 'Your name is Mr Beast, best AI for machine learning, deep learning, RAG.'
@@ -63,24 +64,34 @@ export const useChat = () => {
             conservation: [item, ...messages],
             max_tokens: 1024,
         };
+
         payload.conservation.pop();
+        const messageUser = payload.conservation.slice(-1)[0].content
         payload.conservation.push({ role: 'assistant', content: 'Thinking...' })
         result.current = '';
+
+        const isValid = checkSimilarity(messageUser)
+        if (isValid) {
+            return await chatStream({ ...payload, callbackResult: setResult, callbackReset: resetItem })
+        }
         // logic send message
-//         await ragStream({ ...payload, callbackResult: setResult, callbackReset: resetItem })
-//         const prompt: ChatItem = {
-//             role: 'system',
-//             content: `
-// Based on the question: "[${payload.conservation.slice(-1)[0].content}]" and the context: "[${result.current}]",
-// please provide a clearer, more effective, and easily understandable answer,
-// responding in the same language as the input, don't forget put reference link in the answer if context have.`
-//         }
-//         const newPayload: Payload = {
-//             model_name: "gemma2-9b-it",
-//             conservation: [prompt, ...messages],
-//             max_tokens: 1024,
-//         };
-        await chatStream({ ...payload, callbackResult: setResult, callbackReset: resetItem })
+        await ragStream({ ...payload, callbackResult: setResult, callbackReset: resetItem })
+        const prompt: ChatItem = {
+            role: 'system',
+            content: `
+Based on the question: "[${payload.conservation.slice(-1)[0].content}]" and the context: "[${result.current}]",
+please provide a clearer, more effective, and easily understandable answer,
+responding in the same language as the input, don't forget put reference link in the answer if context have.
+Note: MoMo is not a company; it is merely an e-wallet created by M Service.
+If user ask 'Momo có phải là công ty không' or same, this is true answer 'Momo không phải là công ty'
+`
+        }
+        const newPayload: Payload = {
+            model_name: "llama-3.2-3b-preview",
+            conservation: [prompt, ...messages],
+            max_tokens: 1024,
+        };
+        await chatStream({ ...newPayload, callbackResult: setResult, callbackReset: resetItem })
     };
 
     const resetMessages = useCallback(() => {

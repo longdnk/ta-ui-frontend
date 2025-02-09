@@ -123,9 +123,9 @@ const Dashboard = (props: { [x: string]: any }) => {
                             </Routes>
                         </Box>
                     ) : null}
-                    <Box>
+                    {/* <Box>
                         <Footer/>
-                    </Box>
+                    </Box> */}
                 </Box>
             </SidebarContext.Provider>
         </Box>
