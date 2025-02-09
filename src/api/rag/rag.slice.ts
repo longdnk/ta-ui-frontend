@@ -1,20 +1,50 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { ApiResponse, RagInfo } from "../../types";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { Payload } from "../../types";
+
+const baseUrl = process.env.REACT_APP_API_KEY
 
 export const ragApi = createApi({
-    reducerPath: "ragApi",
-    baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_API_KEY }),
-    endpoints: build => ({
-        ragQuery: build.mutation<ApiResponse<string>, RagInfo>({
-            query(body) {
-                return {
-                    url: 'rags',
-                    method: 'POST',
-                    body
-                }
-            }
-        })
-    })
-})
+    reducerPath: 'rag',
+    baseQuery: fetchBaseQuery({ baseUrl: baseUrl, method: 'POST', timeout: 10000 }),
+    endpoints: (builder) => ({
+        ragStream: builder.mutation<string, Payload>({
+            queryFn: async (body, _queryApi, _extraOptions) => {
+                try {
+                    body.conservation.pop();
+                    const response = await fetch(`${baseUrl}/chats/rag-chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+                    let result: string[] = []
 
-export const { useRagQueryMutation } = ragApi;
+                    if (!response.body) {
+                        throw new Error('Streaming not supported');
+                    }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder('utf-8');
+                    let done = false;
+                    body.callbackReset(true)
+
+                    while (!done) {
+                        const { value, done: readerDone } = await reader.read();
+                        done = readerDone;
+
+                        if (value) {
+                            const chunk = decoder.decode(value);
+                            result.push(chunk)
+                            body.callbackResult(chunk)
+                        }
+                    }
+                    body.callbackReset(false)
+                    return { data: result.toString() }
+                } catch (error: any) {
+                    console.log(error)
+                }
+            },
+        }),
+    }),
+});
+
+export const { useRagStreamMutation } = ragApi;

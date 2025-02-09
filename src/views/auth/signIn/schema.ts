@@ -2,7 +2,7 @@ import * as z from "zod";
 
 // Validation schema using zod
 export const schema = z.object({
-    info: z
+    user_name: z
         .string()
         .refine(
             (value) =>

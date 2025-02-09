@@ -4,13 +4,14 @@ import { Payload } from "../../types";
 const baseUrl = process.env.REACT_APP_API_KEY
 
 export const chatApi = createApi({
-    reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: baseUrl, method: 'POST' }),
+    reducerPath: 'chat',
+    baseQuery: fetchBaseQuery({ baseUrl: baseUrl, method: 'POST', timeout: 10000 }),
     endpoints: (builder) => ({
         chatStream: builder.mutation<string, Payload>({
             queryFn: async (body, _queryApi, _extraOptions) => {
                 try {
-                    const response = await fetch(`${baseUrl}/models/inference`, {
+                    body.conservation.pop();
+                    const response = await fetch(`${baseUrl}/chats/completion`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(body),
@@ -36,7 +37,6 @@ export const chatApi = createApi({
                             body.callbackResult(chunk)
                         }
                     }
-                    console.log(result.toString())
                     body.callbackReset(false)
                     return { data: result.toString() }
                 } catch (error: any) {

@@ -2,7 +2,7 @@ import { cryptItem, deCrypt, enCrypt, enCryptName, hash } from "helper/enCode";
 
 type token = {
     userName: string;
-    userId: string;
+    userId: number;
     userEmail: string;
     accessToken: string;
 }

@@ -2,7 +2,7 @@ import { getToken, getUserName, getUserId, addToken, checkAuth, clearToken, deCr
 
 type token = {
     userName: string;
-    userId: string;
+    userId: number;
     userEmail: string;
     accessToken: string;
 }

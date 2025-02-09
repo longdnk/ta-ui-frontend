@@ -47,13 +47,13 @@ const SignIn = () => {
     });
 
     const onSubmit = async (info: LoginInfo) => {
-        const { data } = await loginUser(info).unwrap();
+        const { data: user } = await loginUser(info).unwrap();
 
         addToken({
-            userEmail: data.user.email,
-            userId: data.user.id,
-            userName: data.user.user_name,
-            accessToken: data.user.token
+            userEmail: user.email,
+            userId: user.id,
+            userName: user.user_name,
+            accessToken: user.token
         });
     };
 
@@ -125,10 +125,10 @@ const SignIn = () => {
                                 mb="4px"
                                 fontWeight="800"
                                 size="lg"
-                                {...register("info")}
+                                {...register("user_name")}
                             />
                             <Text color="red.500" fontSize="sm" mb="24px">
-                                {errors.info?.message}
+                                {errors.user_name?.message}
                             </Text>
                             <FormLabel
                                 ms="4px"

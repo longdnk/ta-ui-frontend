@@ -8,7 +8,7 @@ export const authApi = createApi({
         loginUser: build.mutation<ApiResponse<LoginResponse>, LoginInfo>({
             query(body) {
                 return {
-                    url: 'auths/login',
+                    url: 'auth/login',
                     method: 'POST',
                     body
                 }

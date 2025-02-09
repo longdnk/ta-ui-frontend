@@ -16,13 +16,15 @@ import { useChat, useCopyToClipboard } from "../../../hooks";
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
+import rehypeRaw from "rehype-raw";
+import remarkGfm from 'remark-gfm';
 
 export default function ChatView() {
     const chatEndRef = useRef<HTMLDivElement | null>(null); // Reference to scroll
     const [_, copy] = useCopyToClipboard()
 
     // Định nghĩa màu sắc cho các phần tử
-    const borderColor = useColorModeValue('gray.200', 'whiteAlpha.600');
+    const borderColor = useColorModeValue('#4229fb', 'whiteAlpha.600');
     const inputColor = useColorModeValue('navy.700', 'white');
     const textColor = useColorModeValue('navy.700', 'white');
     const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
@@ -37,8 +39,12 @@ export default function ChatView() {
         textResult,
         chatParam,
         setChatParam,
-        updateMessage
+        updateMessage,
+        isChatting,
+        isRetrieving
     } = useChat()
+
+    const isInference = isRender || isChatting || isRetrieving
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setChatParam({ ...chatParam, inputMessage: event.target.value });
@@ -99,7 +105,7 @@ export default function ChatView() {
                                     me="10px"
                                     h="40px"
                                     w="40px"
-                                    // background={message.role === 'assistant' ? 'white' : null}
+                                // background={message.role === 'assistant' ? 'white' : null}
                                 >
                                     <Icon
                                         as={message.role === 'user' ? MdPerson : MdAutoAwesome}
@@ -120,12 +126,22 @@ export default function ChatView() {
                                 >
                                     {
                                         typeof message.content === 'string' ?
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkMath]}
-                                                rehypePlugins={[rehypeKatex]}
-                                            >
-                                                {message.content}
-                                            </ReactMarkdown>
+                                            // <ReactMarkdown
+                                            //     remarkPlugins={[remarkMath]}
+                                            //     rehypePlugins={[rehypeKatex]}
+                                            // >
+                                            //     {message.content}
+                                            // </ReactMarkdown>
+                                            // <div className="markdown-container">
+                                                <ReactMarkdown
+                                                    className="markdown"
+                                                    remarkPlugins={[remarkGfm, remarkMath]}
+                                                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                                                    remarkRehypeOptions={{ passThrough: ['link'] }}
+                                                >
+                                                    {message.content}
+                                                </ReactMarkdown>
+                                            // </div>
                                             :
                                             <Text
                                                 color={textColor}
@@ -135,7 +151,7 @@ export default function ChatView() {
                                             </Text>
                                     }
                                     {
-                                        (message.role === 'assistant' && index > 0 && index === messages.length - 1 && !isRender)
+                                        (message.role === 'assistant' && index > 0 && index === messages.length - 1 && !isInference)
                                         && (
                                             <>
                                                 <Box
@@ -190,18 +206,21 @@ export default function ChatView() {
                                 </Box>
                             </Flex>
                         ))}
-                        <div ref={chatEndRef}/>
+                        <div ref={chatEndRef} />
                     </Box>
 
                     {/* Input and Send Button */}
                     <Flex>
                         <Input
+                            focusBorderColor={'#4229fb'}
+                            outline={'#4229fb'}
+                            outlineColor={'#4229fb'}
                             disabled={isRender}
                             value={inputMessage}
                             onChange={handleChange}
                             onKeyDown={handleKeyPress}  // Lắng nghe sự kiện nhấn phím
                             minH="54px"
-                            border="1px solid"
+                            // border="1px solid #4229fb"
                             borderColor={borderColor}
                             borderRadius="30px"
                             p="15px 20px"

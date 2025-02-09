@@ -1,25 +1,40 @@
 export type LoginInfo = {
-    info: string
+    user_name: string
     password: string
 }
 
 export type LoginResponse = {
-    user: {
-        id: string;
-        user_name: string;
-        email: string;
-        image: string;
-        token: string;
-        chat_ids: string[];
-        prompt_ids: string[];
-        default_prompt: string;
-        role: {
-            name: string;
-            permission_ids: string[];
-            created_at: string;
-            is_deleted: boolean;
-            id: string;
-            updated_at: string;
-        };
-    };
+    id: number;
+    user_name: string;
+    email: string;
+    image: string;
+    is_deleted: boolean;
+    token: string;
+    created_at: string;
+    updated_at: string;
+    prompt_ids: number[];
+    chat_ids: number[];
+    models: number[];
+    role: {
+        id: number;
+        name: string;
+        permission_ids: number[];
+        created_at: string;
+        updated_at: string;
+    },
+    default_prompt: {
+        id: number;
+        content: string;
+        is_deleted: boolean;
+        created_at: string;
+        updated_at: string;
+    },
+    default_model: {
+        id: number;
+        name: string;
+        detail_name: string;
+        is_deleted: boolean;
+        created_at: string;
+        updated_at: string;
+    }
 };
