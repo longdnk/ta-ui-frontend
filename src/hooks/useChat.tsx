@@ -5,6 +5,7 @@ import { PulseLoader } from "react-spinners";
 import { useChatStreamMutation } from "../api/chat/chat.slice";
 import { useRagStreamMutation } from "../api/rag/rag.slice"
 import { useQuestion } from "./useQuestion";
+import { useLocalChat } from "./useLocalChat";
 
 type ChatParams = {
     inputMessage: string
@@ -14,14 +15,19 @@ type ChatParams = {
 }
 
 export const useChat = () => {
-    const { userName } = useAuth()
     // Thêm các state mới cho kết nối
     const [chatParam, setChatParam] = useState<ChatParams>({
         inputMessage: '', connectionStatus: 'Uninstantiated', retryCount: 0, isRender: false
     })
 
-    const [chatStream, {isLoading: isChatting}] = useChatStreamMutation()
-    const [ragStream, {isLoading: isRetrieving}] = useRagStreamMutation()
+    const [chatStream, { isLoading: isChatting }] = useChatStreamMutation()
+    const [ragStream, { isLoading: isRetrieving }] = useRagStreamMutation()
+
+    const result = useRef<string>('')
+
+    const { localChat } = useLocalChat()
+
+    const [messages, setMessages] = useState<ChatItem[]>(localChat)
 
     const setResult = (chunk: string) => {
         result.current += chunk;
@@ -31,15 +37,6 @@ export const useChat = () => {
     const resetItem = (isRender: boolean) => {
         setChatParam({ ...chatParam, inputMessage: '', isRender: isRender });
     }
-
-    const [messages, setMessages] = useState<ChatItem[]>([
-        {
-            role: 'assistant',
-            content: `Chào **${userName.toUpperCase()}**, tôi tên là **MeMe** trợ lý của bạn, tôi có thể hỏi đáp các thắc mắc về dịch vụ tài chính, tiền tệ hoặc ví trả trước trả sau và các vấn đề liên quan tới MoMo !!!`,
-        }
-    ])
-
-    const result = useRef<string>('');
 
     const { checkSimilarity } = useQuestion()
 
@@ -53,14 +50,13 @@ export const useChat = () => {
     };
 
     const sendMessage = async () => {
-        // checkSimilarity(messages[])
         const item: ChatItem = {
             role: 'system',
-            content: 'Your name is Mr Beast, best AI for machine learning, deep learning, RAG.'
+            content: 'Your name is Meme, best chatbot for question answering with all MoMo problem.'
         }
 
         const payload: Payload = {
-            model_name: "gemma2-9b-it",
+            model_name: "llama3-8b-8192",
             conservation: [item, ...messages],
             max_tokens: 1024,
         };
@@ -75,22 +71,27 @@ export const useChat = () => {
             return await chatStream({ ...payload, callbackResult: setResult, callbackReset: resetItem })
         }
         // logic send message
-        await ragStream({ ...payload, callbackResult: setResult, callbackReset: resetItem })
+        await ragStream({
+            ...payload,
+            callbackResult: setResult,
+            callbackReset: resetItem
+        }).then(() => console.log("DONE RAG FLOW"))
+
         const prompt: ChatItem = {
             role: 'system',
             content: `
-Based on the question: "[${payload.conservation.slice(-1)[0].content}]" and the context: "[${result.current}]",
-please provide a clearer, more effective, and easily understandable answer,
-responding in the same language as the input, don't forget put reference link in the answer if context have.
-Note: MoMo is not a company; it is merely an e-wallet created by M Service.
-If user ask 'Momo có phải là công ty không' or same, this is true answer 'Momo không phải là công ty'
-`
+Dựa vào câu hỏi: "[${payload.conservation.slice(-1)[0].content}]" và context được cung cấp: "[${result.current}]",
+nhiệm vụ của bạn là đưa ra câu trả lời dễ hiểu, rõ ràng hơn và dễ đọc hơn, ưu tiên trả lời tiếng Việt.
+Hãy chèn các link tham khảo nếu bạn có thể, đảm bảo ở câu trả lời cuối không chứa các khối HTML.`
         }
+
         const newPayload: Payload = {
-            model_name: "llama-3.2-3b-preview",
-            conservation: [prompt, ...messages],
+            model_name: "llama3-8b-8192",
+            conservation: [prompt, { role: 'user', content: result.current }],
             max_tokens: 1024,
+            temperature: 0
         };
+
         await chatStream({ ...newPayload, callbackResult: setResult, callbackReset: resetItem })
     };
 
@@ -133,6 +134,7 @@ If user ask 'Momo có phải là công ty không' or same, this is true answer '
         isRender: chatParam.isRender,
         textResult: result.current,
         isChatting: isChatting,
-        isRetrieving: isRetrieving
+        isRetrieving: isRetrieving,
+        setMessages
     };
 };

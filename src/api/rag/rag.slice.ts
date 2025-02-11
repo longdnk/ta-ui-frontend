@@ -5,7 +5,7 @@ const baseUrl = process.env.REACT_APP_API_KEY
 
 export const ragApi = createApi({
     reducerPath: 'rag',
-    baseQuery: fetchBaseQuery({ baseUrl: baseUrl, method: 'POST', timeout: 10000 }),
+    baseQuery: fetchBaseQuery({ baseUrl: baseUrl, method: 'POST', timeout: 2 * 60 * 1000 }),
     endpoints: (builder) => ({
         ragStream: builder.mutation<string, Payload>({
             queryFn: async (body, _queryApi, _extraOptions) => {

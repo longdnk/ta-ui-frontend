@@ -2,19 +2,21 @@ import {
     Box,
     Flex,
     Icon,
-    Input,
+    Input, Menu,
     SimpleGrid,
     Text,
     useColorModeValue
 } from '@chakra-ui/react';
 import React, { useRef, useEffect } from 'react';
 import { MdAutoAwesome, MdOutlineRefresh, MdPerson, MdFileCopy } from 'react-icons/md';
-import { useChat, useCopyToClipboard, useQuestion } from "../../../hooks";
+import { useChat, useCopyToClipboard, useLocalChat } from "../../../hooks";
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import rehypeRaw from "rehype-raw";
 import remarkGfm from 'remark-gfm';
+import { ChatItem } from "../../../types";
+import { useGetAllChatQuery } from "../../../api/conservation/conservation.slice";
 
 export default function ChatView() {
     const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -25,6 +27,7 @@ export default function ChatView() {
     const textColor = useColorModeValue('navy.700', 'white');
     const placeholderColor = useColorModeValue('gray.500', 'whiteAlpha.600');
     const backgroundColor = useColorModeValue('white', 'navy.900');
+    const { localChat, updateLocalChat } = useLocalChat()
 
     const {
         messages,
@@ -37,18 +40,13 @@ export default function ChatView() {
         setChatParam,
         updateMessage,
         isChatting,
-        isRetrieving
+        isRetrieving,
+        setMessages
     } = useChat();
-
-    const { checkSimilarity } = useQuestion()
 
     const isInference = isRender || isChatting || isRetrieving;
 
-    useEffect(() => {
-        if (chatEndRef.current) {
-            chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
+    const { isFetching } = useGetAllChatQuery()
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setChatParam({ ...chatParam, inputMessage: event.target.value });
@@ -79,6 +77,27 @@ export default function ChatView() {
         }
     };
 
+    useEffect(() => {
+        if (isFetching) {
+            setTimeout(() => {
+                const latest = JSON.parse(localStorage.getItem('local_chat'))
+                setMessages(latest)
+            }, 500)
+        }
+    }, [localChat, isFetching]);
+
+    useEffect(() => {
+        if (!isInference && messages.length > 1) {
+            updateLocalChat(messages);
+        }
+    }, [messages, isInference, updateLocalChat]);
+
+    useEffect(() => {
+        if (chatEndRef.current || isInference) {
+            chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages, isInference]);
+
     return (
         <Box
             position={'fixed'}
@@ -99,7 +118,65 @@ export default function ChatView() {
                 maxH="550px"
                 overflowY="auto"
             >
-                {messages.map((message, index) => (
+                <MessageBlock
+                    messages={messages}
+                    borderColor={borderColor}
+                    textColor={textColor}
+                    isInference={isInference}
+                    resetResponse={resetResponse}
+                    handleCopy={handleCopy}
+                    textResult={textResult}
+                />
+                <div ref={chatEndRef}></div>
+            </SimpleGrid>
+            <Flex
+                p="10px"
+                bg={backgroundColor}
+                flexDirection={{ base: "column", md: "row" }}
+                position="absolute"
+                bottom="0"
+                left="0"
+                right="0"
+                align="center"
+                borderRadius={'10px'}
+            >
+                <Input
+                    focusBorderColor="#4229fb"
+                    disabled={isInference}
+                    value={inputMessage}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyPress}
+                    minH="54px"
+                    borderColor={borderColor}
+                    borderRadius="20px"
+                    p="15px 20px"
+                    fontSize="sm"
+                    fontWeight="bold"
+                    color={inputColor}
+                    placeholder="Type your message here..."
+                    _placeholder={{ color: placeholderColor }}
+                    flex="1"
+                />
+            </Flex>
+        </Box>
+    );
+}
+
+const MessageBlock: React.FC<{
+    messages: ChatItem[],
+    borderColor: string,
+    textColor: string,
+    isInference: boolean,
+    resetResponse: () => void,
+    handleCopy: (text: string) => void,
+    textResult: string
+}>
+    = props => {
+    const { messages, borderColor, textColor, isInference, resetResponse, handleCopy, textResult } = props
+    return (
+        <>
+            {
+                messages.map((message, index) => (
                     <Flex
                         key={index}
                         direction={message.role === 'user' ? 'row-reverse' : 'row'}
@@ -203,38 +280,8 @@ export default function ChatView() {
                             }
                         </Box>
                     </Flex>
-                ))}
-                <div ref={chatEndRef}></div>
-            </SimpleGrid>
-            <Flex
-                p="10px"
-                bg={backgroundColor}
-                flexDirection={{ base: "column", md: "row" }}
-                position="absolute"
-                bottom="0"
-                left="0"
-                right="0"
-                align="center"
-                borderRadius={'10px'}
-            >
-                <Input
-                    focusBorderColor="#4229fb"
-                    disabled={isInference}
-                    value={inputMessage}
-                    onChange={handleChange}
-                    onKeyDown={handleKeyPress}
-                    minH="54px"
-                    borderColor={borderColor}
-                    borderRadius="20px"
-                    p="15px 20px"
-                    fontSize="sm"
-                    fontWeight="bold"
-                    color={inputColor}
-                    placeholder="Type your message here..."
-                    _placeholder={{ color: placeholderColor }}
-                    flex="1"
-                />
-            </Flex>
-        </Box>
-    );
+                ))
+            }
+        </>
+    )
 }

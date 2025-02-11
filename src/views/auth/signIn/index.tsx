@@ -11,7 +11,7 @@ import {
     InputGroup,
     InputRightElement,
     Text,
-    useColorModeValue,
+    useColorModeValue, useToast,
 } from "@chakra-ui/react";
 import DefaultAuth from "layouts/auth/Default";
 import illustration from "assets/img/auth/auth.png";
@@ -22,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./schema";
 import { useLoginUserMutation } from "../../../api/auth/auth.slice";
 import { LoginInfo } from "../../../types";
-import { useAuth } from "../../../hooks";
+import { useAuth, useLocalChat } from "../../../hooks";
 import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
@@ -37,6 +37,9 @@ const SignIn = () => {
     const { addToken } = useAuth()
     const navigate = useNavigate();
 
+    const toast = useToast()
+    const { defaultItemChat } = useLocalChat()
+
     // React Hook Form
     const {
         register,
@@ -47,14 +50,26 @@ const SignIn = () => {
     });
 
     const onSubmit = async (info: LoginInfo) => {
-        const { data: user } = await loginUser(info).unwrap();
+        const { data: user, message } = await loginUser(info).unwrap();
 
         addToken({
             userEmail: user.email,
             userId: user.id,
             userName: user.user_name,
-            accessToken: user.token
-        });
+            accessToken: user.token,
+            prompt: user.prompt_ids,
+            models: user.models,
+            default_prompt: user.default_prompt,
+            default_model: user.default_model,
+        })
+        toast({
+            title: `${message}`,
+            status: 'success',
+            variant: 'solid',
+            position: 'top-right',
+            duration: 5000,
+            isClosable: true,
+        })
     };
 
     console.log(isSuccess);

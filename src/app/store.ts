@@ -2,11 +2,13 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { authApi } from "../api/auth/auth.slice";
 import { ragApi } from "../api/rag/rag.slice";
 import { chatApi } from "../api/chat/chat.slice";
+import { conversationApi} from "../api/conservation/conservation.slice";
 
 const middlewares = [
     authApi.middleware,
     ragApi.middleware,
-    chatApi.middleware
+    chatApi.middleware,
+    conversationApi.middleware
 ];
 
 export const store = configureStore({
@@ -14,7 +16,8 @@ export const store = configureStore({
         // Auth api
         [authApi.reducerPath]: authApi.reducer,
         [ragApi.reducerPath]: ragApi.reducer,
-        [chatApi.reducerPath]: chatApi.reducer
+        [chatApi.reducerPath]: chatApi.reducer,
+        [conversationApi.reducerPath]: conversationApi.reducer
     },
     // Add middleware item
     middleware(getDefaultMiddleware) {

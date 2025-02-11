@@ -1,6 +1,6 @@
 // chakra imports
 import { Icon, Flex, Text, useColorModeValue } from "@chakra-ui/react";
-import { MdUpgrade } from "react-icons/md"; 
+import { MdChatBubble } from "react-icons/md";
 
 export function ItemContent(props:{info:string}) {
   const textColor = useColorModeValue("navy.700", "white");
@@ -16,7 +16,7 @@ export function ItemContent(props:{info:string}) {
         w={{ base: "60px", md: "70px" }}
         me='14px'
         bg='linear-gradient(135deg, #868CFF 0%, #4318FF 100%)'>
-        <Icon as={MdUpgrade} color='white' w={8} h={14} />
+        <Icon as={MdChatBubble} color='white' w={8} h={14} />
       </Flex>
       <Flex flexDirection='column'>
         <Text
@@ -24,7 +24,7 @@ export function ItemContent(props:{info:string}) {
           fontWeight='bold'
           color={textColor}
           fontSize={{ base: "md", md: "md" }}>
-          New Update: {props.info}
+          Chat section: {props.info}
         </Text>
         <Flex alignItems='center'>
           <Text

@@ -5,6 +5,11 @@ type token = {
     userId: number;
     userEmail: string;
     accessToken: string;
+    prompt: any[];
+    models: any[];
+    default_prompt: object;
+    default_model: object;
+    local_chat?: any[];
 }
 
 export const useAuth = () => {
