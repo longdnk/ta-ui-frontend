@@ -33,7 +33,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { useAddNewChatMutation, useGetAllChatQuery } from "../../api/conservation/conservation.slice";
 import { NewChatPayload } from "../../types";
 import { getFormattedDate } from "../../helper/date";
-import { useChat, useLocalChat, useStatus } from "../../hooks";
+import { useLocalChat } from "../../hooks";
 
 export default function HeaderLinks(props: { secondary: boolean }) {
     const { secondary } = props;
@@ -55,11 +55,12 @@ export default function HeaderLinks(props: { secondary: boolean }) {
     const navigate = useNavigate();
     let userName = localStorage.getItem(enCryptName('userName'));
 
+    const { currentData } = useGetAllChatQuery()
+
     const toast = useToast()
 
     const [addChat, { isLoading, isSuccess }] = useAddNewChatMutation()
 
-    const { setMessages } = useChat()
     const { localChat, updateLocalChat, defaultItemChat } = useLocalChat()
 
     const userId: number = parseInt(localStorage.getItem('userId'))
@@ -85,14 +86,13 @@ export default function HeaderLinks(props: { secondary: boolean }) {
                 title: 'Chat Created successfully!',
                 description: 'New chat append to DB',
                 status: 'success',
-                duration: 5000,
+                duration: 2000,
                 isClosable: true,
                 position: 'top-right'
             })
-            setMessages(defaultItemChat)
             updateLocalChat(defaultItemChat)
         }
-    }, [updateLocalChat, setMessages, defaultItemChat, isSuccess, toast])
+    }, [updateLocalChat, defaultItemChat, isSuccess, toast])
 
     return (
         <Flex
@@ -168,12 +168,26 @@ export default function HeaderLinks(props: { secondary: boolean }) {
                         </Text>
                     </Flex>
                     <Flex flexDirection='column'>
-                        <MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} px='0' borderRadius='8px' mb='10px'>
-                            <ItemContent info='Horizon UI Dashboard PRO'/>
-                        </MenuItem>
-                        <MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} px='0' borderRadius='8px' mb='10px'>
-                            <ItemContent info='Horizon Design System Free'/>
-                        </MenuItem>
+                        {
+                            currentData?.data.map(element => {
+                                return (
+                                    <MenuItem
+                                        _hover={{ bg: 'none' }}
+                                        _focus={{ bg: 'none' }}
+                                        px='0'
+                                        borderRadius='8px'
+                                        mb='10px'
+                                        key={element.id}
+                                    >
+                                        <ItemContent
+                                            id={element.id}
+                                            info={element.title}
+                                            createAt={element.created_at}
+                                        />
+                                    </MenuItem>
+                                )
+                            })
+                        }
                     </Flex>
                 </MenuList>
             </Menu>

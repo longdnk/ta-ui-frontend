@@ -72,8 +72,6 @@ const SignIn = () => {
         })
     };
 
-    console.log(isSuccess);
-
     useEffect(() => {
         if (isSuccess) {
             navigate('/admin/chat');

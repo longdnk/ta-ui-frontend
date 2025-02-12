@@ -16,8 +16,8 @@ export const conversationApi = createApi({
                     ]
                     : [{ type: 'Chat', id: 'LIST' }],
         }),
-        getChatById: builder.query<ApiResponse<NewChatResponse>, string>({
-            query: (chatId) => `/chats/${chatId}`,
+        getChatById: builder.query<ApiResponse<NewChatResponse>, number | string>({
+            query: chatId => `/chats/${chatId}`,
             providesTags: (result, error, chatId) => [{ type: 'Chat', id: chatId }],
         }),
         addNewChat: builder.mutation<ApiResponse<NewChatResponse>, NewChatPayload>({
@@ -56,6 +56,8 @@ export const conversationApi = createApi({
 
 export const {
     useGetAllChatQuery,
+    useLazyGetAllChatQuery,
+    useLazyGetChatByIdQuery,
     useGetChatByIdQuery,
     useAddNewChatMutation,
     useUpdateChatMutation,

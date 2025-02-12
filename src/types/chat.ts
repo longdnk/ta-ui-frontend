@@ -21,7 +21,7 @@ export type NewChatPayload = {
 export type NewChatResponse = {
     id: number
     title: string
-    conservation: ChatItem[]
+    conversation: ChatItem[]
     user_id: number
     id_deleted?: boolean
     created_at?: string
