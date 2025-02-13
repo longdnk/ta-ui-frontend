@@ -82,7 +82,9 @@ export const useChat = () => {
             content: `
 Dựa vào câu hỏi: "[${payload.conservation.slice(-1)[0].content}]" và context được cung cấp: "[${result.current}]",
 nhiệm vụ của bạn là đưa ra câu trả lời dễ hiểu, rõ ràng hơn và dễ đọc hơn, ưu tiên trả lời tiếng Việt.
-Hãy chèn các link tham khảo nếu bạn có thể, đảm bảo ở câu trả lời cuối không chứa các khối HTML.`
+Hãy chèn các link tham khảo nếu bạn có thể, đảm bảo ở câu trả lời cuối không chứa các khối HTML.
+Bạn lưu ý là nếu trong context có từ 'éim' hoặc 'Éim' thì viết lại thành 'Esim' nhé.
+`
         }
 
         const newPayload: Payload = {

@@ -203,7 +203,7 @@ const MessageBlock: React.FC<{
                         </Flex>
                         <Box
                             p="15px"
-                            fontWeight={'bold'}
+                            // fontWeight={'bold'}
                             border="2px solid"
                             borderColor="#4229fb"
                             borderRadius="14px"

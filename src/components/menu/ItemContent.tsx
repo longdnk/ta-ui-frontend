@@ -15,23 +15,30 @@ export function ItemContent(props: { info: string, createAt: string, id: number 
 
     const { updateLocalChat } = useLocalChat()
 
-    const getChatDetail = (event: React.MouseEvent<SVGElement | HTMLDivElement, MouseEvent> ) => {
+    const getChatDetail = (event: React.MouseEvent<SVGElement | HTMLDivElement, MouseEvent>) => {
         trigger(event.currentTarget.id)
     }
 
     useEffect(() => {
         if (!loadingDetail && currentData?.data) {
+            toast({
+                title: "Getting chat",
+                position: "top-right",
+                duration: 1000,
+                isClosable: true,
+                status: "loading",
+            })
             setTimeout(() => {
                 updateLocalChat(currentData?.data.conversation)
                 refetch()
                 toast({
-                    title: "Get chat detail success",
+                    title: "Get chat content success",
                     position: "top-right",
                     duration: 1000,
                     isClosable: true,
                     status: "success",
                 })
-            }, 100)
+            }, 1000)
         }
     }, [loadingDetail, updateLocalChat, refetch, currentData]);
 
