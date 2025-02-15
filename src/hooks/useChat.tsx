@@ -56,7 +56,7 @@ export const useChat = () => {
         }
 
         const payload: Payload = {
-            model_name: "llama3-8b-8192",
+            model_name: "llama3-70b-8192",
             conservation: [item, ...messages],
             max_tokens: 1024,
         };
@@ -83,13 +83,31 @@ export const useChat = () => {
 Dựa vào câu hỏi: "[${payload.conservation.slice(-1)[0].content}]" và context được cung cấp: "[${result.current}]",
 nhiệm vụ của bạn là đưa ra câu trả lời dễ hiểu, rõ ràng hơn và dễ đọc hơn, ưu tiên trả lời tiếng Việt.
 Hãy chèn các link tham khảo nếu bạn có thể, đảm bảo ở câu trả lời cuối không chứa các khối HTML.
-Bạn lưu ý là nếu trong context có từ 'éim' hoặc 'Éim' thì viết lại thành 'Esim' nhé.
 `
         }
 
+        let resultString = "";
+
+        const detailsRegex = /<details[^>]*>[\s\S]*?<summary>(.*?)<\/summary>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/gi;
+        for (const match of result.current.matchAll(detailsRegex)) {
+            const summaryContent = match[1].trim();
+            const pContent = match[2].trim();
+            if (summaryContent.includes("Relevant")) {
+                const cleanContent = pContent.replace(/<[^>]+>/g, "").trim();
+                resultString += `Type: Relevant\nSummary: ${summaryContent}\nContent: ${cleanContent}\n\n---\n\n`;
+            }
+        }
+
+        const generateRegex = /<blockquote[^>]*>\s*<strong>\s*Generate Response\s*<span[^>]*>(.*?)<\/span>\s*<\/strong>\s*<p[^>]*>([\s\S]*?)<\/p>\s*<\/blockquote>/gi;
+        for (const match of result.current.matchAll(generateRegex)) {
+            const resultMessage = match[1].trim();
+            const generatedContent = match[2].replace(/<[^>]+>/g, "").trim();
+            resultString += `Type: Generate Response\nResult: ${resultMessage}\nContent: ${generatedContent}\n\n===\n\n`;
+        }
+
         const newPayload: Payload = {
-            model_name: "llama3-8b-8192",
-            conservation: [prompt, { role: 'user', content: result.current }],
+            model_name: "llama3-70b-8192",
+            conservation: [prompt, { role: 'user', content: resultString }],
             max_tokens: 1024,
             temperature: 0
         };

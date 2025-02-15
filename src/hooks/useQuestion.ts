@@ -5,7 +5,10 @@ export const useQuestion = () => {
 
     const [isSimilar, setIsSimilar] = useState<boolean>(false)
 
-    const list = ["hi", "helo", "hello", "xin chào", "chào bạn", "chào", "bạn tên gì", "xin chào, bạn tên gì"]
+    const list = [
+        "hi", "helo", "hello", "xin chào", "chào bạn", "chào", "bạn tên gì", "xin chào, bạn tên gì",
+        "xin chào meme", "xin chào, bạn là ai", "momo là gì",
+    ]
 
     const THRESHOLD = 0.8
 
